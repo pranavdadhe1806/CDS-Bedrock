@@ -94,13 +94,12 @@ void _brqueue_enqueue_string(BRQueue *queue, const char *val) {
     queue->size++;
 }
 
-Value* brqueue_dequeue(BRQueue *queue) {
-    if (queue == NULL || queue->size == 0) return NULL;
+void brqueue_dequeue(BRQueue *queue) { // Free internally to prevent memory leaks
+    if (queue == NULL || queue->size == 0) return;
     
-    Value *val = queue->data[queue->head];
+    value_free(queue->data[queue->head]); // Free the Value before dequeueing
     queue->head = (queue->head + 1) % queue->capacity;
     queue->size--;
-    return val;
 }
 
 Value* brqueue_peek(BRQueue *queue) {

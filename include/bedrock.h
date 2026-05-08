@@ -83,6 +83,25 @@ static inline void _update_string(BRArray *arr, int idx, const char *val) {
 #define clear(arr)         brarray_clear(arr)
 #define print(arr)         brarray_print(arr)
 
+// LinkedList aliases for uniform API
+#define list_get(list, i)  list_get_at(list, i)
+#define list_pop(list)     list_pop_front(list) // Default to front pop
+#define list_delete(list,i) list_remove_at(list, i)
+#define list_clear(list)   list_clear(list)
+#define list_print(list)   list_print(list)
+
+// Stack aliases for uniform API
+#define stack_get(stack, i) brstack_peek(stack) // Stack only supports peek, not get by index
+#define stack_pop(stack)    brstack_pop(stack)
+#define stack_clear(stack)  brstack_clear(stack)
+#define stack_print(stack)  brstack_print(stack)
+
+// Queue aliases for uniform API
+#define queue_get(queue, i) brqueue_peek(queue) // Queue only supports peek, not get by index
+#define queue_pop(queue)    brqueue_dequeue(queue)
+#define queue_clear(queue)  brqueue_clear(queue)
+#define queue_print(queue)  brqueue_print(queue)
+
 // contains needs special handling - create temporary Value for comparison
 #define contains(arr, val) _Generic((val),         \
     int:         _contains_int_val,                \

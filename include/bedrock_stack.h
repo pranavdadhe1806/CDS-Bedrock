@@ -20,7 +20,7 @@ void _brstack_push_char(BRStack *stack, char val);
 void _brstack_push_string(BRStack *stack, const char *val);
 
 // Core operations
-Value* brstack_pop(BRStack *stack);
+void   brstack_pop(BRStack *stack); // Changed to void to prevent memory leaks
 Value* brstack_peek(BRStack *stack);
 int    brstack_is_empty(BRStack *stack);
 int    brstack_size(BRStack *stack);

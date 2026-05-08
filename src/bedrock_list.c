@@ -159,11 +159,11 @@ Value *list_peek_back(LinkedList *list) {
 }
 
 // Pop Front
-Value *list_pop_front(LinkedList *list) {
-    if (list == NULL || list->head == NULL) return NULL;
+void list_pop_front(LinkedList *list) { // Free internally to prevent memory leaks
+    if (list == NULL || list->head == NULL) return;
     
     BRNode *node = list->head;
-    Value *data = node->data;
+    value_free(node->data); // Free the Value before removing node
     
     if (list->head == list->tail) {
         // Only one node
@@ -176,15 +176,14 @@ Value *list_pop_front(LinkedList *list) {
     
     free(node);
     list->size--;
-    return data;
 }
 
 // Pop Back
-Value *list_pop_back(LinkedList *list) {
-    if (list == NULL || list->tail == NULL) return NULL;
+void list_pop_back(LinkedList *list) { // Free internally to prevent memory leaks
+    if (list == NULL || list->tail == NULL) return;
     
     BRNode *node = list->tail;
-    Value *data = node->data;
+    value_free(node->data); // Free the Value before removing node
     
     if (list->head == list->tail) {
         // Only one node
@@ -197,7 +196,6 @@ Value *list_pop_back(LinkedList *list) {
     
     free(node);
     list->size--;
-    return data;
 }
 
 // Get At

@@ -63,10 +63,12 @@ void _brstack_push_string(BRStack *stack, const char *val) {
     stack->top++;
 }
 
-Value* brstack_pop(BRStack *stack) {
-    if (stack == NULL || stack->top == 0) return NULL;
+void brstack_pop(BRStack *stack) { // Free internally to prevent memory leaks
+    if (stack == NULL || stack->top == 0) {
+        return;
+    }
     stack->top--;
-    return stack->data[stack->top];
+    value_free(stack->data[stack->top]); // Free the Value before shrinking
 }
 
 Value* brstack_peek(BRStack *stack) {

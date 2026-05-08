@@ -1,6 +1,7 @@
 #include "../include/value.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 Value *make_int(int val) {
     Value *v = malloc(sizeof(Value));
@@ -68,7 +69,7 @@ int value_equals(const Value *a, const Value *b) {
         case TYPE_INT:
             return a->as.i == b->as.i;
         case TYPE_DOUBLE:
-            return a->as.d == b->as.d;
+            return fabs(a->as.d - b->as.d) < 1e-9; // Use epsilon for floating-point comparison
         case TYPE_CHAR:
             return a->as.c == b->as.c;
         case TYPE_STRING:
