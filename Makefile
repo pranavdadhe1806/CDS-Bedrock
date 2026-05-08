@@ -3,11 +3,11 @@ CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
 INCLUDE = -I include
 
 # Source files
-SRCS = src/value.c src/dyn_array.c src/linked_list.c src/stack.c src/queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
+SRCS = src/value.c src/dyn_array.c src/bedrock_list.c src/linked_list.c src/stack.c src/queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
 OBJS = $(SRCS:.c=.o)
 
 # Test executables
-TEST_BINS = tests/test_dyn_array tests/test_linked_list tests/test_stack tests/test_queue tests/test_bst tests/test_hmap tests/test_heap tests/test_graph
+TEST_BINS = tests/test_dyn_array tests/test_bedrock_list tests/test_linked_list tests/test_stack tests/test_queue tests/test_bst tests/test_hmap tests/test_heap tests/test_graph
 
 # Example executable
 EXAMPLE_BIN = examples/example
@@ -28,6 +28,7 @@ $(EXAMPLE_BIN): examples/example.c $(OBJS)
 test: $(TEST_BINS)
 	@echo "Running all tests..."
 	@./tests/test_dyn_array
+	@./tests/test_bedrock_list
 	@./tests/test_linked_list
 	@./tests/test_stack
 	@./tests/test_queue
@@ -39,6 +40,9 @@ test: $(TEST_BINS)
 
 # Build individual test binaries
 tests/test_dyn_array: tests/test_dyn_array.c src/value.o src/dyn_array.o
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
+
+tests/test_bedrock_list: tests/test_bedrock_list.c src/value.o src/bedrock_list.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 tests/test_linked_list: tests/test_linked_list.c src/linked_list.o
