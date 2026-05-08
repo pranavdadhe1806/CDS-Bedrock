@@ -19,11 +19,11 @@ static int fail_count = 0;
 } while(0)
 
 void test_all_operations(void) {
-    printf("=== Testing All DynArray Operations ===\n\n");
+    printf("=== Testing All BRArray Operations ===\n\n");
     
     // 1. Create array
     printf("1. Creating array...\n");
-    DynArray *arr = DynArray_new();
+    BRArray *arr = BRArray_new();
     ASSERT(arr != NULL, "Failed to create array");
     ASSERT(size(arr) == 0, "New array should have size 0");
     printf("   Created successfully\n\n");
@@ -153,7 +153,7 @@ void test_all_operations(void) {
     
     // 13. Destroy
     printf("12. Destroying array...\n");
-    DynArray_destroy(arr);
+    BRArray_destroy(arr);
     printf("   Destroyed successfully\n\n");
     pass_count++;
     

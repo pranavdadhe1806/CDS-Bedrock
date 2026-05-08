@@ -3,11 +3,11 @@ CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
 INCLUDE = -I include
 
 # Source files
-SRCS = src/value.c src/dyn_array.c src/bedrock_list.c src/linked_list.c src/stack.c src/queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
+SRCS = src/value.c src/bedrock_array.c src/bedrock_list.c src/bedrock_stack.c src/bedrock_queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
 OBJS = $(SRCS:.c=.o)
 
 # Test executables
-TEST_BINS = tests/test_dyn_array tests/test_bedrock_list tests/test_linked_list tests/test_stack tests/test_queue tests/test_bst tests/test_hmap tests/test_heap tests/test_graph
+TEST_BINS = tests/test_bedrock_array tests/test_bedrock_list tests/test_bedrock_stack tests/test_bedrock_queue tests/test_stack tests/test_queue tests/test_bst tests/test_hmap tests/test_heap tests/test_graph
 
 # Example executable
 EXAMPLE_BIN = examples/example
@@ -27,9 +27,10 @@ $(EXAMPLE_BIN): examples/example.c $(OBJS)
 # Build and run all tests
 test: $(TEST_BINS)
 	@echo "Running all tests..."
-	@./tests/test_dyn_array
+	@./tests/test_bedrock_array
 	@./tests/test_bedrock_list
-	@./tests/test_linked_list
+	@./tests/test_bedrock_stack
+	@./tests/test_bedrock_queue
 	@./tests/test_stack
 	@./tests/test_queue
 	@./tests/test_bst
@@ -39,19 +40,22 @@ test: $(TEST_BINS)
 	@echo "All tests completed."
 
 # Build individual test binaries
-tests/test_dyn_array: tests/test_dyn_array.c src/value.o src/dyn_array.o
+tests/test_bedrock_array: tests/test_bedrock_array.c src/value.o src/bedrock_array.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 tests/test_bedrock_list: tests/test_bedrock_list.c src/value.o src/bedrock_list.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
-tests/test_linked_list: tests/test_linked_list.c src/linked_list.o
+tests/test_bedrock_stack: tests/test_bedrock_stack.c src/value.o src/bedrock_stack.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
-tests/test_stack: tests/test_stack.c src/stack.o
+tests/test_bedrock_queue: tests/test_bedrock_queue.c src/value.o src/bedrock_queue.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
-tests/test_queue: tests/test_queue.c src/queue.o
+tests/test_stack: tests/test_stack.c src/bedrock_stack.o
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
+
+tests/test_queue: tests/test_queue.c src/bedrock_queue.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 tests/test_bst: tests/test_bst.c src/bst.o
