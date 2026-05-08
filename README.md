@@ -147,10 +147,10 @@ make clean
 
 ## Progress
 
-- [ ] Dynamic Array
-- [ ] Linked List
-- [ ] Stack
-- [ ] Queue
+- [x] Dynamic Array
+- [x] Linked List
+- [x] Stack
+- [x] Queue
 - [ ] Binary Search Tree (BST)
 - [ ] Hash Map
 - [ ] Heap
