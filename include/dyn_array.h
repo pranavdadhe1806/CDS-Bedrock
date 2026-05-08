@@ -1,55 +1,30 @@
 #ifndef DYN_ARRAY_H
 #define DYN_ARRAY_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include "value.h"
 
 typedef struct {
-    void   **data;        // array of void* pointers
-    size_t   size;        // number of elements currently stored
-    size_t   capacity;    // allocated slots
-    void   (*print_fn)(const void *);
-    void   (*free_fn)(void *);
-    int    (*cmp)(const void *, const void *);
+    Value **data;      // buffer of Value pointers
+    int     size;      // current number of elements
+    int     capacity;  // allocated slots
 } DynArray;
 
-// Create a new dynamic array with initial capacity
-DynArray* dyn_array_create(size_t initial_capacity, 
-                           void (*print_fn)(const void *),
-                           void (*free_fn)(void *),
-                           int (*cmp)(const void *, const void *));
+DynArray *DynArray_new(void);
+void      DynArray_destroy(DynArray *arr);
 
-// Destroy the array and free all memory
-void dyn_array_destroy(DynArray *arr);
+void      _push_int(DynArray *arr, int val);
+void      _push_double(DynArray *arr, double val);
+void      _push_char(DynArray *arr, char val);
+void      _push_string(DynArray *arr, const char *val);
 
-// Add an element to the end of the array
-int dyn_array_push(DynArray *arr, void *data);
-
-// Remove and return the last element
-void* dyn_array_pop(DynArray *arr);
-
-// Insert an element at a specific index
-int dyn_array_insert(DynArray *arr, size_t index, void *data);
-
-// Remove an element at a specific index
-int dyn_array_remove(DynArray *arr, size_t index);
-
-// Get element at index without removing it
-void* dyn_array_get(DynArray *arr, size_t index);
-
-// Set element at index
-int dyn_array_set(DynArray *arr, size_t index, void *data);
-
-// Search for an element using the comparator
-int dyn_array_index_of(DynArray *arr, const void *data);
-
-// Remove all elements (calls free_fn if provided)
-void dyn_array_clear(DynArray *arr);
-
-// Print all elements using print_fn
-void dyn_array_print(DynArray *arr);
-
-// Resize the array to new capacity
-int dyn_array_resize(DynArray *arr, size_t new_capacity);
+Value    *dyn_array_get(DynArray *arr, int index);
+Value    *dyn_array_pop(DynArray *arr);
+void      dyn_array_insert(DynArray *arr, int index, Value *val);
+void      dyn_array_delete(DynArray *arr, int index);
+void      dyn_array_update(DynArray *arr, int index, Value *val);
+int       dyn_array_size(DynArray *arr);
+int       dyn_array_contains(DynArray *arr, Value *val);
+void      dyn_array_clear(DynArray *arr);
+void      dyn_array_print(DynArray *arr);
 
 #endif // DYN_ARRAY_H

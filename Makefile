@@ -3,7 +3,7 @@ CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
 INCLUDE = -I include
 
 # Source files
-SRCS = src/dyn_array.c src/linked_list.c src/stack.c src/queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
+SRCS = src/value.c src/dyn_array.c src/linked_list.c src/stack.c src/queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
 OBJS = $(SRCS:.c=.o)
 
 # Test executables
@@ -38,7 +38,7 @@ test: $(TEST_BINS)
 	@echo "All tests completed."
 
 # Build individual test binaries
-tests/test_dyn_array: tests/test_dyn_array.c src/dyn_array.o
+tests/test_dyn_array: tests/test_dyn_array.c src/value.o src/dyn_array.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 tests/test_linked_list: tests/test_linked_list.c src/linked_list.o

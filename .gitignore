@@ -1,2 +1,7 @@
-#PLAN
+# Build artifacts
+*.o
+*.exe
+examples/example
+
+# PLAN directory (internal project docs)
 PLAN/
