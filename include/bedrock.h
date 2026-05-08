@@ -1,64 +1,69 @@
 #ifndef BEDROCK_H
 #define BEDROCK_H
 
-#include "dyn_array.h"
+#include "value.h"
+#include "bedrock_array.h"
 #include "bedrock_list.h"
+#include "bedrock_stack.h"
+#include "bedrock_queue.h"
+
+// ==================== ARRAY MACROS ====================
 
 // push — auto-detects type, user never thinks about it
 #define push(arr, val) _Generic((val),      \
-    int:         _push_int,                 \
-    double:      _push_double,              \
-    char:        _push_char,                \
-    char*:       _push_string,              \
-    const char*: _push_string               \
+    int:         _brarray_push_int,          \
+    double:      _brarray_push_double,      \
+    char:        _brarray_push_char,        \
+    char*:       _brarray_push_string,      \
+    const char*: _brarray_push_string       \
 )(arr, val)
 
 // Internal helper functions for insert/update (inline for efficiency)
-static inline void _insert_int(DynArray *arr, int idx, int val) {
+static inline void _insert_int(BRArray *arr, int idx, int val) {
     Value *v = make_int(val);
-    dyn_array_insert(arr, idx, v);
+    brarray_insert(arr, idx, v);
 }
 
-static inline void _insert_double(DynArray *arr, int idx, double val) {
+static inline void _insert_double(BRArray *arr, int idx, double val) {
     Value *v = make_double(val);
-    dyn_array_insert(arr, idx, v);
+    brarray_insert(arr, idx, v);
 }
 
-static inline void _insert_char(DynArray *arr, int idx, char val) {
+static inline void _insert_char(BRArray *arr, int idx, char val) {
     Value *v = make_char(val);
-    dyn_array_insert(arr, idx, v);
+    brarray_insert(arr, idx, v);
 }
 
-static inline void _insert_string(DynArray *arr, int idx, const char *val) {
+static inline void _insert_string(BRArray *arr, int idx, const char *val) {
     Value *v = make_string(val);
-    dyn_array_insert(arr, idx, v);
+    brarray_insert(arr, idx, v);
 }
 
-static inline void _update_int(DynArray *arr, int idx, int val) {
+static inline void _update_int(BRArray *arr, int idx, int val) {
     Value *v = make_int(val);
-    dyn_array_update(arr, idx, v);
+    brarray_update(arr, idx, v);
 }
 
-static inline void _update_double(DynArray *arr, int idx, double val) {
+static inline void _update_double(BRArray *arr, int idx, double val) {
     Value *v = make_double(val);
-    dyn_array_update(arr, idx, v);
+    brarray_update(arr, idx, v);
 }
 
-static inline void _update_char(DynArray *arr, int idx, char val) {
+static inline void _update_char(BRArray *arr, int idx, char val) {
     Value *v = make_char(val);
-    dyn_array_update(arr, idx, v);
+    brarray_update(arr, idx, v);
 }
 
-static inline void _update_string(DynArray *arr, int idx, const char *val) {
+static inline void _update_string(BRArray *arr, int idx, const char *val) {
     Value *v = make_string(val);
-    dyn_array_update(arr, idx, v);
+    brarray_update(arr, idx, v);
 }
 
 #define insert(arr, idx, val) _Generic((val),      \
     int:         _insert_int,                      \
     double:      _insert_double,                   \
     char:        _insert_char,                     \
-    char*:       _insert_string,                    \
+    char*:       _insert_string,                   \
     const char*: _insert_string                     \
 )(arr, idx, val)
 
@@ -70,42 +75,42 @@ static inline void _update_string(DynArray *arr, int idx, const char *val) {
     const char*: _update_string                     \
 )(arr, idx, val)
 
-// clean aliases so user writes get/pop/etc not dyn_array_get
-#define get(arr, i)        dyn_array_get(arr, i)
-#define pop(arr)           dyn_array_pop(arr)
-#define delete(arr, i)     dyn_array_delete(arr, i)
-#define size(arr)          dyn_array_size(arr)
-#define clear(arr)         dyn_array_clear(arr)
-#define print(arr)         dyn_array_print(arr)
+// clean aliases so user writes get/pop/etc not brarray_get
+#define get(arr, i)        brarray_get(arr, i)
+#define pop(arr)           brarray_pop(arr)
+#define delete(arr, i)     brarray_delete(arr, i)
+#define size(arr)          brarray_size(arr)
+#define clear(arr)         brarray_clear(arr)
+#define print(arr)         brarray_print(arr)
 
 // contains needs special handling - create temporary Value for comparison
 #define contains(arr, val) _Generic((val),         \
     int:         _contains_int_val,                \
-    double:      _contains_double_val,              \
+    double:      _contains_double_val,            \
     char:        _contains_char_val,               \
-    char*:       _contains_string_val,             \
+    char*:       _contains_string_val,            \
     const char*: _contains_string_val              \
 )(arr, val)
 
 // Internal helpers for contains
-static inline int _contains_int_val(DynArray *arr, int val) {
+static inline int _contains_int_val(BRArray *arr, int val) {
     Value tmp = {TYPE_INT, {.i = val}};
-    return dyn_array_contains(arr, &tmp);
+    return brarray_contains(arr, &tmp);
 }
 
-static inline int _contains_double_val(DynArray *arr, double val) {
+static inline int _contains_double_val(BRArray *arr, double val) {
     Value tmp = {TYPE_DOUBLE, {.d = val}};
-    return dyn_array_contains(arr, &tmp);
+    return brarray_contains(arr, &tmp);
 }
 
-static inline int _contains_char_val(DynArray *arr, char val) {
+static inline int _contains_char_val(BRArray *arr, char val) {
     Value tmp = {TYPE_CHAR, {.c = val}};
-    return dyn_array_contains(arr, &tmp);
+    return brarray_contains(arr, &tmp);
 }
 
-static inline int _contains_string_val(DynArray *arr, const char *val) {
+static inline int _contains_string_val(BRArray *arr, const char *val) {
     Value tmp = {TYPE_STRING, {.s = (char*)val}};
-    return dyn_array_contains(arr, &tmp);
+    return brarray_contains(arr, &tmp);
 }
 
 // ==================== LINKED LIST MACROS ====================
@@ -166,5 +171,43 @@ static inline int _contains_string_val(DynArray *arr, const char *val) {
 #define list_size(list)      list_size(list)
 #define list_clear(list)     list_clear(list)
 #define list_print(list)     list_print(list)
+
+// ==================== STACK MACROS ====================
+
+// stack_push — auto-detects type
+#define stack_push(stack, val) _Generic((val),   \
+    int:         _brstack_push_int,             \
+    double:      _brstack_push_double,         \
+    char:        _brstack_push_char,            \
+    char*:       _brstack_push_string,          \
+    const char*: _brstack_push_string           \
+)(stack, val)
+
+// single-type aliases
+#define stack_pop(stack)       brstack_pop(stack)
+#define stack_peek(stack)      brstack_peek(stack)
+#define stack_is_empty(stack)  brstack_is_empty(stack)
+#define stack_size(stack)      brstack_size(stack)
+#define stack_clear(stack)     brstack_clear(stack)
+#define stack_print(stack)     brstack_print(stack)
+
+// ==================== QUEUE MACROS ====================
+
+// enqueue — auto-detects type
+#define enqueue(queue, val) _Generic((val),    \
+    int:         _brqueue_enqueue_int,          \
+    double:      _brqueue_enqueue_double,      \
+    char:        _brqueue_enqueue_char,        \
+    char*:       _brqueue_enqueue_string,      \
+    const char*: _brqueue_enqueue_string        \
+)(queue, val)
+
+// single-type aliases
+#define queue_dequeue(queue)   brqueue_dequeue(queue)
+#define queue_peek(queue)      brqueue_peek(queue)
+#define queue_is_empty(queue)  brqueue_is_empty(queue)
+#define queue_size(queue)      brqueue_size(queue)
+#define queue_clear(queue)     brqueue_clear(queue)
+#define queue_print(queue)     brqueue_print(queue)
 
 #endif // BEDROCK_H
