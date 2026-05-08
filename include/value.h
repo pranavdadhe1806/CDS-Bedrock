@@ -27,5 +27,6 @@ Value *make_string(const char *val);
 void   value_print(const Value *v);
 void   value_free(Value *v);
 int    value_equals(const Value *a, const Value *b);
+int    value_compare(const Value *a, const Value *b); // Returns <0 if a < b, 0 if a == b, >0 if a > b
 
 #endif // VALUE_H

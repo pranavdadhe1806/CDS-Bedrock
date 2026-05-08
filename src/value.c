@@ -78,3 +78,31 @@ int value_equals(const Value *a, const Value *b) {
     
     return 0;
 }
+
+int value_compare(const Value *a, const Value *b) {
+    if (a == NULL || b == NULL) return 0;
+    
+    // Type mismatch: TYPE_INT < TYPE_DOUBLE < TYPE_CHAR < TYPE_STRING (by enum order)
+    if (a->type != b->type) {
+        return (a->type < b->type) ? -1 : 1;
+    }
+    
+    // Same type: compare by value
+    switch (a->type) {
+        case TYPE_INT:
+            if (a->as.i < b->as.i) return -1;
+            if (a->as.i > b->as.i) return 1;
+            return 0;
+        case TYPE_DOUBLE:
+            if (fabs(a->as.d - b->as.d) < 1e-9) return 0;
+            return (a->as.d < b->as.d) ? -1 : 1;
+        case TYPE_CHAR:
+            if (a->as.c < b->as.c) return -1;
+            if (a->as.c > b->as.c) return 1;
+            return 0;
+        case TYPE_STRING:
+            return strcmp(a->as.s, b->as.s);
+    }
+    
+    return 0;
+}

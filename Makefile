@@ -3,7 +3,7 @@ CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
 INCLUDE = -I include
 
 # Source files
-SRCS = src/value.c src/bedrock_array.c src/bedrock_list.c src/bedrock_stack.c src/bedrock_queue.c src/bst.c src/hmap.c src/heap.c src/graph.c
+SRCS = src/value.c src/bedrock_array.c src/bedrock_list.c src/bedrock_stack.c src/bedrock_queue.c src/bedrock_bst.c src/hmap.c src/heap.c src/graph.c
 OBJS = $(SRCS:.c=.o)
 
 # Test executables
@@ -58,7 +58,7 @@ tests/test_stack: tests/test_stack.c src/bedrock_stack.o
 tests/test_queue: tests/test_queue.c src/bedrock_queue.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
-tests/test_bst: tests/test_bst.c src/bst.o
+tests/test_bst: tests/test_bst.c src/value.o src/bedrock_bst.o
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 tests/test_hmap: tests/test_hmap.c src/hmap.o

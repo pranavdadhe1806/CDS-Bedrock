@@ -6,6 +6,7 @@
 #include "bedrock_list.h"
 #include "bedrock_stack.h"
 #include "bedrock_queue.h"
+#include "bedrock_bst.h"
 
 // ==================== ARRAY MACROS ====================
 
@@ -228,5 +229,84 @@ static inline int _contains_string_val(BRArray *arr, const char *val) {
 #define queue_size(queue)      brqueue_size(queue)
 #define queue_clear(queue)     brqueue_clear(queue)
 #define queue_print(queue)     brqueue_print(queue)
+
+// ==================== BST MACROS ====================
+
+// bst_insert — auto-detects type
+#define bst_insert(tree, val) _Generic((val),   \
+    int:         _brbst_insert_int,              \
+    double:      _brbst_insert_double,           \
+    char:        _brbst_insert_char,             \
+    char*:       _brbst_insert_string,           \
+    const char*: _brbst_insert_string            \
+)(tree, val)
+
+// Internal helpers for search/remove (create temporary Value for comparison)
+static inline int _brbst_search_int(BRBST *tree, int val) {
+    Value tmp = {TYPE_INT, {.i = val}};
+    return brbst_search(tree, &tmp);
+}
+
+static inline int _brbst_search_double(BRBST *tree, double val) {
+    Value tmp = {TYPE_DOUBLE, {.d = val}};
+    return brbst_search(tree, &tmp);
+}
+
+static inline int _brbst_search_char(BRBST *tree, char val) {
+    Value tmp = {TYPE_CHAR, {.c = val}};
+    return brbst_search(tree, &tmp);
+}
+
+static inline int _brbst_search_string(BRBST *tree, const char *val) {
+    Value tmp = {TYPE_STRING, {.s = (char*)val}};
+    return brbst_search(tree, &tmp);
+}
+
+static inline void _brbst_remove_int(BRBST *tree, int val) {
+    Value tmp = {TYPE_INT, {.i = val}};
+    brbst_remove(tree, &tmp);
+}
+
+static inline void _brbst_remove_double(BRBST *tree, double val) {
+    Value tmp = {TYPE_DOUBLE, {.d = val}};
+    brbst_remove(tree, &tmp);
+}
+
+static inline void _brbst_remove_char(BRBST *tree, char val) {
+    Value tmp = {TYPE_CHAR, {.c = val}};
+    brbst_remove(tree, &tmp);
+}
+
+static inline void _brbst_remove_string(BRBST *tree, const char *val) {
+    Value tmp = {TYPE_STRING, {.s = (char*)val}};
+    brbst_remove(tree, &tmp);
+}
+
+#define bst_contains(tree, val) _Generic((val), \
+    int:         _brbst_search_int,              \
+    double:      _brbst_search_double,           \
+    char:        _brbst_search_char,             \
+    char*:       _brbst_search_string,           \
+    const char*: _brbst_search_string            \
+)(tree, val)
+
+#define bst_delete(tree, val) _Generic((val),   \
+    int:         _brbst_remove_int,              \
+    double:      _brbst_remove_double,           \
+    char:        _brbst_remove_char,             \
+    char*:       _brbst_remove_string,           \
+    const char*: _brbst_remove_string            \
+)(tree, val)
+
+// BST aliases
+#define bst_size(tree)      brbst_size(tree)
+#define bst_is_empty(tree)  brbst_is_empty(tree)
+#define bst_clear(tree)     brbst_clear(tree)
+#define bst_height(tree)    brbst_height(tree)
+#define bst_find_min(tree)  brbst_find_min(tree)
+#define bst_find_max(tree)  brbst_find_max(tree)
+#define bst_inorder(tree)   brbst_inorder(tree)
+#define bst_preorder(tree)  brbst_preorder(tree)
+#define bst_postorder(tree) brbst_postorder(tree)
 
 #endif // BEDROCK_H
