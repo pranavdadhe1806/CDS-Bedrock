@@ -58,6 +58,7 @@ static BRBSTNode *_detach_min_node(BRBSTNode *node, Value **detached_data) {
     if (node->left == NULL) {
         BRBSTNode *right = node->right;
         *detached_data = node->data;
+        node->data = NULL;
         free(node);
         return right;
     }

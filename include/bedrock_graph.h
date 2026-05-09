@@ -1,6 +1,9 @@
 #ifndef BEDROCK_GRAPH_H
 #define BEDROCK_GRAPH_H
 
+#include "value.h"
+#include "bedrock_queue.h"
+
 typedef struct AdjNode {
     int             vertex;
     void           *weight;

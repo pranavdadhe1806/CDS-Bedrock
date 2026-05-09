@@ -429,4 +429,15 @@ static inline int _hmap_remove_string(HMap *map, const char *k) {
 #define heap_len(heap)      heap_size(heap)
 #define heap_empty(heap)    heap_is_empty(heap)
 
+// ==================== GRAPH MACROS ====================
+
+#define graph_new(v, d)              graph_create(v, d, NULL, NULL)
+#define graph_new_weighted(v, d, p, f) graph_create(v, d, p, f)
+#define graph_edge(g, s, d)          graph_add_edge(g, s, d, NULL)
+#define graph_weighted_edge(g, s, d, w) graph_add_edge(g, s, d, w)
+#define graph_unedge(g, s, d)        graph_remove_edge(g, s, d)
+#define graph_connected(g, s, d)     graph_has_edge(g, s, d)
+#define graph_vertices(g)            graph_num_vertices(g)
+#define graph_edges(g)               graph_num_edges(g)
+
 #endif // BEDROCK_H

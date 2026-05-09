@@ -193,33 +193,35 @@ void graph_bfs(Graph *graph, int start_vertex, void (*visit)(int vertex)) {
     if (!_valid_vertex(graph, start_vertex)) return;
 
     int *visited = calloc((size_t)graph->num_vertices, sizeof(int));
-    int *queue = malloc((size_t)graph->num_vertices * sizeof(int));
+    BRQueue *queue = BRQueue_new();
     if (visited == NULL || queue == NULL) {
         free(visited);
-        free(queue);
+        BRQueue_destroy(queue);
         return;
     }
 
-    int head = 0;
-    int tail = 0;
     visited[start_vertex] = 1;
-    queue[tail++] = start_vertex;
+    _brqueue_enqueue_int(queue, start_vertex);
 
-    while (head < tail) {
-        int vertex = queue[head++];
+    while (!brqueue_is_empty(queue)) {
+        Value *queued = brqueue_dequeue(queue);
+        if (queued == NULL) break;
+        int vertex = queued->as.i;
+        value_free(queued);
+
         if (visit != NULL) visit(vertex);
 
         AdjNode *current = graph->adj_lists[vertex];
         while (current != NULL) {
             if (!visited[current->vertex]) {
                 visited[current->vertex] = 1;
-                queue[tail++] = current->vertex;
+                _brqueue_enqueue_int(queue, current->vertex);
             }
             current = current->next;
         }
     }
 
-    free(queue);
+    BRQueue_destroy(queue);
     free(visited);
 }
 
