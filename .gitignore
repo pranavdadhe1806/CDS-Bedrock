@@ -2,6 +2,9 @@
 *.o
 *.exe
 examples/example
+build/
+install/
+CMakeUserPresets.json
 
 # PLAN directory (internal project docs)
 PLAN/

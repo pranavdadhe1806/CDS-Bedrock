@@ -1,149 +1,111 @@
-# CDS — Bedrock
+# CDS-Bedrock
 
-<p align="center">
-  <img src="https://img.shields.io/badge/C-11-blue?style=flat-square&logo=c" alt="C11">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT">
-  <img src="https://img.shields.io/badge/Build-Make-orange?style=flat-square" alt="Build: Make">
-  <img src="https://img.shields.io/badge/Platform-Linux%2FmacOS-lightgrey?style=flat-square" alt="Platform: Linux/macOS">
-</p>
+Foundational data structures built from scratch in C11.
 
-<p align="center"><em>Foundational data structures, built from scratch in C.</em></p>
+![C11](https://img.shields.io/badge/C-11-blue?style=flat-square&logo=c)
+![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![Build: CMake](https://img.shields.io/badge/Build-CMake-orange?style=flat-square)
 
-Eight fundamental data structures implemented in C11 with `void*` generics and manual memory management. Every structure works with any pointer type, follows the same callback contract, and gives you full control over memory ownership. Built to understand what higher-level languages abstract away — not to wrap around them.
-
----
-
-## Why Bedrock
-
-Java and Python hide the interesting parts. You call `.add()` and something happens in memory — you just never see it. This project is the opposite of that. Every structure here is built with explicit `malloc`, `free`, pointer arithmetic, and zero safety nets. You learn why array access is O(1) and linked list traversal isn't, why a circular buffer beats a naive queue, and what a hash collision actually looks like in memory. The name is intentional — this is the layer everything else is built on.
-
----
+CDS-Bedrock is a C11 data structures library with explicit memory management and a small public API. It is packaged with CMake for local builds, GitHub release artifacts, and vcpkg integration.
 
 ## Data Structures
 
-| Structure | Internal Impl | Key Operations | Time Complexity | Status |
-|-----------|---------------|----------------|-----------------|--------|
-| Dynamic Array | Contiguous `void**` buffer | push, pop, insert, remove, get, set | Access: O(1) / Push: O(1) amortized / Insert: O(n) | ⬜ |
-| Linked List | Doubly-linked nodes | push_front, push_back, pop_front, pop_back, insert, remove | Push/Pop: O(1) / Access: O(n) / Search: O(n) | ⬜ |
-| Stack | Dynamic array (LIFO) | push, pop, peek | All: O(1) | ⬜ |
-| Queue | Circular buffer (FIFO) | enqueue, dequeue, peek | All: O(1) | ⬜ |
-| Binary Search Tree | Ordered node pointers | insert, remove, search, find_min, find_max | Avg: O(log n) / Worst: O(n) | ⬜ |
-| Hash Map | Open addressing, linear probing | put, get, remove, contains | Avg: O(1) / Worst: O(n) | ⬜ |
-| Heap | Binary heap over array | insert, extract, peek, heapify | Insert/Extract: O(log n) / Peek: O(1) | ⬜ |
-| Graph | Adjacency list | add_edge, remove_edge, bfs, dfs | Add Edge: O(1) / Traversal: O(V + E) | ⬜ |
-
----
-
-## Design Principles
-
-**Generics via void***
-
-Every structure stores `void*` pointers. The same Dynamic Array works for `int*`, `char*`, or any struct — the library never needs to know what it's holding. Casting is the caller's responsibility.
-
-```c
-int x = 42;
-dyn_array_push(arr, &x);
-int *val = (int *)dyn_array_get(arr, 0);
-```
-
-**Callback Contract**
-
-Each structure accepts up to three function pointers at creation time, covering comparison, debug printing, and cleanup. Not every structure needs all three — Stack and Queue skip the comparator, BST and Heap require it.
-
-```c
-int  (*cmp)     (const void *a, const void *b); // returns <0, 0, >0
-void (*print_fn)(const void *data);             // debug printing
-void (*free_fn) (void *data);                   // pass NULL to opt out
-```
-
-**Memory Ownership**
-
-The library never copies your data — it stores the exact pointer you pass in. If you provide a `free_fn`, it gets called on every data pointer during `destroy` and `clear`. Pass `NULL` and you manage memory yourself.
-
-```c
-// Library frees your data on destroy
-DynArray *arr = dyn_array_create(cmp, print_fn, free);
-dyn_array_destroy(arr); // calls free() on every element
-
-// You manage your own memory
-DynArray *arr = dyn_array_create(cmp, print_fn, NULL);
-dyn_array_destroy(arr); // only frees the array internals
-```
-
----
+| Structure | Internal Implementation | Key Operations | Complexity |
+|-----------|--------------------------|----------------|------------|
+| Dynamic Array | Contiguous buffer | push, pop, insert, delete, get, update | Access: O(1), Insert/Delete: O(n) |
+| Linked List | Doubly linked nodes | push_front, push_back, pop, remove, reverse | Push/Pop: O(1), Search: O(n) |
+| Stack | Dynamic array | push, pop, peek | O(1) |
+| Queue | Circular buffer | enqueue, dequeue, peek | O(1) |
+| Binary Search Tree | Ordered nodes | insert, remove, search, traversals | Avg: O(log n), Worst: O(n) |
+| Hash Map | Open addressing, linear probing | put, get, remove, contains | Avg: O(1), Worst: O(n) |
+| Heap | Binary heap over array | insert, extract, peek, heapify | Insert/Extract: O(log n) |
+| Graph | Adjacency list | add_edge, remove_edge, bfs, dfs | Traversal: O(V + E) |
 
 ## Project Structure
 
-```
-cds/
-├── include/
-│   ├── dyn_array.h
-│   ├── linked_list.h
-│   ├── stack.h
-│   ├── queue.h
-│   ├── bst.h
-│   ├── bedrock_hmap.h
-│   ├── heap.h
-│   └── graph.h
-├── src/
-│   ├── dyn_array.c
-│   ├── linked_list.c
-│   ├── stack.c
-│   ├── queue.c
-│   ├── bst.c
-│   ├── bedrock_hmap.c
-│   ├── heap.c
-│   └── graph.c
-├── tests/
-│   ├── test_dyn_array.c
-│   ├── test_linked_list.c
-│   ├── test_stack.c
-│   ├── test_queue.c
-│   ├── test_bst.c
-│   ├── test_bedrock_hmap.c
-│   ├── test_heap.c
-│   └── test_graph.c
-├── examples/
-│   └── example.c
-├── Makefile
-└── README.md
+```text
+cds-bedrock/
+|-- include/
+|   |-- bedrock.h
+|   |-- bedrock_array.h
+|   |-- bedrock_list.h
+|   |-- bedrock_stack.h
+|   |-- bedrock_queue.h
+|   |-- bedrock_bst.h
+|   |-- bedrock_hmap.h
+|   |-- heap.h
+|   |-- graph.h
+|   `-- value.h
+|-- src/
+|   |-- value.c
+|   |-- bedrock_array.c
+|   |-- bedrock_list.c
+|   |-- bedrock_stack.c
+|   |-- bedrock_queue.c
+|   |-- bedrock_bst.c
+|   |-- bedrock_hmap.c
+|   |-- heap.c
+|   `-- graph.c
+|-- tests/
+|-- examples/
+|-- cmake/
+|-- ports/cds-bedrock/
+|-- CMakeLists.txt
+|-- CMakePresets.json
+|-- LICENSE
+`-- README.md
 ```
 
----
+## Build And Test
 
-## Build & Run
-
-Build everything:
+Configure:
 
 ```bash
-make all
+cmake -S . -B build
 ```
 
-Run all tests (each binary runs independently — one failure won't block the rest):
+Build:
 
 ```bash
-make test
+cmake --build build
 ```
 
-Run the example program:
+Run tests:
 
 ```bash
-./examples/example
+ctest --test-dir build --output-on-failure
 ```
 
-Check for memory leaks (requires Valgrind):
+Install locally:
 
 ```bash
-make valgrind
+cmake --install build --prefix install
 ```
 
-Clean build artifacts:
+Preset workflow:
 
 ```bash
-make clean
+cmake --preset default
+cmake --build --preset default
+ctest --preset default
 ```
 
----
+## CMake Consumption
+
+After installing the package, consume it from another CMake project with:
+
+```cmake
+find_package(cds-bedrock CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE cds-bedrock::cds-bedrock)
+```
+
+## vcpkg Overlay Port
+
+This repository includes an overlay port under `ports/cds-bedrock`.
+
+```bash
+vcpkg install cds-bedrock --overlay-ports=ports
+```
 
 ## Progress
 
@@ -151,13 +113,11 @@ make clean
 - [x] Linked List
 - [x] Stack
 - [x] Queue
-- [ ] Binary Search Tree (BST)
-- [ ] Hash Map
+- [x] Binary Search Tree
+- [x] Hash Map
 - [ ] Heap
 - [ ] Graph
 
----
+## License
 
-## Author
-
-[pranavdadhe1806](https://github.com/pranavdadhe1806) · [CDS — Bedrock](https://github.com/pranavdadhe1806/CDS-Bedrock)
+MIT. See [LICENSE](LICENSE).

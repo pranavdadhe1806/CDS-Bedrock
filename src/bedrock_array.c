@@ -57,12 +57,14 @@ Value *brarray_get(BRArray *arr, int index) {
     return arr->data[index];
 }
 
-void brarray_pop(BRArray *arr) { // Free internally to prevent memory leaks
+Value *brarray_pop(BRArray *arr) {
     if (arr == NULL || arr->size == 0) {
-        return;
+        return NULL;
     }
-    value_free(arr->data[arr->size - 1]); // Free the Value before shrinking
+    Value *value = arr->data[arr->size - 1];
+    arr->data[arr->size - 1] = NULL;
     arr->size--;
+    return value;
 }
 
 void brarray_insert(BRArray *arr, int index, Value *val) {

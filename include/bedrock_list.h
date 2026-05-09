@@ -45,8 +45,8 @@ int   _list_contains_string   (LinkedList *list, const char *val);
 
 Value  *list_peek_front  (LinkedList *list);
 Value  *list_peek_back   (LinkedList *list);
-void    list_pop_front   (LinkedList *list); // Changed to void to prevent memory leaks
-void    list_pop_back    (LinkedList *list); // Changed to void to prevent memory leaks
+Value  *list_pop_front   (LinkedList *list);
+Value  *list_pop_back    (LinkedList *list);
 Value  *list_get_at      (LinkedList *list, int index);
 void    list_remove_at   (LinkedList *list, int index);
 int     list_size        (LinkedList *list);
