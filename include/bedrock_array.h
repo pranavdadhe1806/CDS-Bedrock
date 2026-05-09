@@ -18,9 +18,9 @@ void      _brarray_push_char(BRArray *arr, char val);
 void      _brarray_push_string(BRArray *arr, const char *val);
 
 Value    *brarray_get(BRArray *arr, int index);
-Value    *brarray_pop(BRArray *arr);
+Value    *brarray_pop(BRArray *arr);              // caller owns returned Value*
 void      brarray_insert(BRArray *arr, int index, Value *val);
-void      brarray_delete(BRArray *arr, int index);
+void      brarray_delete(BRArray *arr, int index); // frees removed Value internally
 void      brarray_update(BRArray *arr, int index, Value *val);
 int       brarray_size(BRArray *arr);
 int       brarray_contains(BRArray *arr, Value *val);

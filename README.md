@@ -33,8 +33,8 @@ cds-bedrock/
 |   |-- bedrock_queue.h
 |   |-- bedrock_bst.h
 |   |-- bedrock_hmap.h
-|   |-- heap.h
-|   |-- graph.h
+|   |-- bedrock_heap.h
+|   |-- bedrock_graph.h
 |   `-- value.h
 |-- src/
 |   |-- value.c
@@ -44,8 +44,8 @@ cds-bedrock/
 |   |-- bedrock_queue.c
 |   |-- bedrock_bst.c
 |   |-- bedrock_hmap.c
-|   |-- heap.c
-|   `-- graph.c
+|   |-- bedrock_heap.c
+|   `-- bedrock_graph.c
 |-- tests/
 |-- examples/
 |-- cmake/
@@ -115,8 +115,8 @@ vcpkg install cds-bedrock --overlay-ports=ports
 - [x] Queue
 - [x] Binary Search Tree
 - [x] Hash Map
-- [ ] Heap
-- [ ] Graph
+- [x] Heap
+- [x] Graph
 
 ## License
 

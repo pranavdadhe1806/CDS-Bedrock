@@ -5,6 +5,7 @@
 
 Value *make_int(int val) {
     Value *v = malloc(sizeof(Value));
+    if (v == NULL) return NULL;
     v->type = TYPE_INT;
     v->as.i = val;
     return v;
@@ -12,6 +13,7 @@ Value *make_int(int val) {
 
 Value *make_double(double val) {
     Value *v = malloc(sizeof(Value));
+    if (v == NULL) return NULL;
     v->type = TYPE_DOUBLE;
     v->as.d = val;
     return v;
@@ -19,16 +21,23 @@ Value *make_double(double val) {
 
 Value *make_char(char val) {
     Value *v = malloc(sizeof(Value));
+    if (v == NULL) return NULL;
     v->type = TYPE_CHAR;
     v->as.c = val;
     return v;
 }
 
 Value *make_string(const char *val) {
+    if (val == NULL) return NULL;
     Value *v = malloc(sizeof(Value));
+    if (v == NULL) return NULL;
     v->type = TYPE_STRING;
     size_t len = strlen(val) + 1;
     v->as.s = malloc(len);
+    if (v->as.s == NULL) {
+        free(v);
+        return NULL;
+    }
     strcpy(v->as.s, val);
     return v;
 }
@@ -47,6 +56,10 @@ void value_print(const Value *v) {
             printf("'%c'", v->as.c);
             break;
         case TYPE_STRING:
+            if (v->as.s == NULL) {
+                printf("\"\"");
+                break;
+            }
             printf("\"%s\"", v->as.s);
             break;
     }
@@ -73,6 +86,7 @@ int value_equals(const Value *a, const Value *b) {
         case TYPE_CHAR:
             return a->as.c == b->as.c;
         case TYPE_STRING:
+            if (a->as.s == NULL || b->as.s == NULL) return a->as.s == b->as.s;
             return strcmp(a->as.s, b->as.s) == 0;
     }
     
@@ -101,6 +115,9 @@ int value_compare(const Value *a, const Value *b) {
             if (a->as.c > b->as.c) return 1;
             return 0;
         case TYPE_STRING:
+            if (a->as.s == NULL && b->as.s == NULL) return 0;
+            if (a->as.s == NULL) return -1;
+            if (b->as.s == NULL) return 1;
             return strcmp(a->as.s, b->as.s);
     }
     

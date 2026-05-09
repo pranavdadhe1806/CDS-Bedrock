@@ -4,6 +4,7 @@
 
 LinkedList *LinkedList_new(void) {
     LinkedList *list = malloc(sizeof(LinkedList));
+    if (list == NULL) return NULL;
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
@@ -18,7 +19,12 @@ void LinkedList_destroy(LinkedList *list) {
 
 // Helper to create a new BRNode with given Value
 static BRNode *_create_node(Value *val) {
+    if (val == NULL) return NULL;
     BRNode *node = malloc(sizeof(BRNode));
+    if (node == NULL) {
+        value_free(val);
+        return NULL;
+    }
     node->data = val;
     node->prev = NULL;
     node->next = NULL;
@@ -27,8 +33,10 @@ static BRNode *_create_node(Value *val) {
 
 // Push Front implementations
 void _list_push_front_int(LinkedList *list, int val) {
+    if (list == NULL) return;
     Value *v = make_int(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->head == NULL) {
         list->head = node;
@@ -42,8 +50,10 @@ void _list_push_front_int(LinkedList *list, int val) {
 }
 
 void _list_push_front_double(LinkedList *list, double val) {
+    if (list == NULL) return;
     Value *v = make_double(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->head == NULL) {
         list->head = node;
@@ -57,8 +67,10 @@ void _list_push_front_double(LinkedList *list, double val) {
 }
 
 void _list_push_front_char(LinkedList *list, char val) {
+    if (list == NULL) return;
     Value *v = make_char(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->head == NULL) {
         list->head = node;
@@ -72,8 +84,10 @@ void _list_push_front_char(LinkedList *list, char val) {
 }
 
 void _list_push_front_string(LinkedList *list, const char *val) {
+    if (list == NULL) return;
     Value *v = make_string(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->head == NULL) {
         list->head = node;
@@ -88,8 +102,10 @@ void _list_push_front_string(LinkedList *list, const char *val) {
 
 // Push Back implementations
 void _list_push_back_int(LinkedList *list, int val) {
+    if (list == NULL) return;
     Value *v = make_int(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->tail == NULL) {
         list->head = node;
@@ -103,8 +119,10 @@ void _list_push_back_int(LinkedList *list, int val) {
 }
 
 void _list_push_back_double(LinkedList *list, double val) {
+    if (list == NULL) return;
     Value *v = make_double(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->tail == NULL) {
         list->head = node;
@@ -118,8 +136,10 @@ void _list_push_back_double(LinkedList *list, double val) {
 }
 
 void _list_push_back_char(LinkedList *list, char val) {
+    if (list == NULL) return;
     Value *v = make_char(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->tail == NULL) {
         list->head = node;
@@ -133,8 +153,10 @@ void _list_push_back_char(LinkedList *list, char val) {
 }
 
 void _list_push_back_string(LinkedList *list, const char *val) {
+    if (list == NULL) return;
     Value *v = make_string(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     if (list->tail == NULL) {
         list->head = node;
@@ -213,7 +235,7 @@ Value *list_get_at(LinkedList *list, int index) {
 
 // Insert At implementations
 void _list_insert_at_int(LinkedList *list, int index, int val) {
-    if (index < 0 || index > list->size) return;
+    if (list == NULL || index < 0 || index > list->size) return;
     if (index == 0) {
         _list_push_front_int(list, val);
         return;
@@ -225,6 +247,7 @@ void _list_insert_at_int(LinkedList *list, int index, int val) {
     
     Value *v = make_int(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     BRNode *current = list->head;
     for (int i = 0; i < index; i++) {
@@ -239,7 +262,7 @@ void _list_insert_at_int(LinkedList *list, int index, int val) {
 }
 
 void _list_insert_at_double(LinkedList *list, int index, double val) {
-    if (index < 0 || index > list->size) return;
+    if (list == NULL || index < 0 || index > list->size) return;
     if (index == 0) {
         _list_push_front_double(list, val);
         return;
@@ -251,6 +274,7 @@ void _list_insert_at_double(LinkedList *list, int index, double val) {
     
     Value *v = make_double(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     BRNode *current = list->head;
     for (int i = 0; i < index; i++) {
@@ -265,7 +289,7 @@ void _list_insert_at_double(LinkedList *list, int index, double val) {
 }
 
 void _list_insert_at_char(LinkedList *list, int index, char val) {
-    if (index < 0 || index > list->size) return;
+    if (list == NULL || index < 0 || index > list->size) return;
     if (index == 0) {
         _list_push_front_char(list, val);
         return;
@@ -277,6 +301,7 @@ void _list_insert_at_char(LinkedList *list, int index, char val) {
     
     Value *v = make_char(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     BRNode *current = list->head;
     for (int i = 0; i < index; i++) {
@@ -291,7 +316,7 @@ void _list_insert_at_char(LinkedList *list, int index, char val) {
 }
 
 void _list_insert_at_string(LinkedList *list, int index, const char *val) {
-    if (index < 0 || index > list->size) return;
+    if (list == NULL || index < 0 || index > list->size) return;
     if (index == 0) {
         _list_push_front_string(list, val);
         return;
@@ -303,6 +328,7 @@ void _list_insert_at_string(LinkedList *list, int index, const char *val) {
     
     Value *v = make_string(val);
     BRNode *node = _create_node(v);
+    if (node == NULL) return;
     
     BRNode *current = list->head;
     for (int i = 0; i < index; i++) {
@@ -352,8 +378,10 @@ void _list_update_at_int(LinkedList *list, int index, int val) {
         current = current->next;
     }
     
+    Value *v = make_int(val);
+    if (v == NULL) return;
     value_free(current->data);
-    current->data = make_int(val);
+    current->data = v;
 }
 
 void _list_update_at_double(LinkedList *list, int index, double val) {
@@ -364,8 +392,10 @@ void _list_update_at_double(LinkedList *list, int index, double val) {
         current = current->next;
     }
     
+    Value *v = make_double(val);
+    if (v == NULL) return;
     value_free(current->data);
-    current->data = make_double(val);
+    current->data = v;
 }
 
 void _list_update_at_char(LinkedList *list, int index, char val) {
@@ -376,8 +406,10 @@ void _list_update_at_char(LinkedList *list, int index, char val) {
         current = current->next;
     }
     
+    Value *v = make_char(val);
+    if (v == NULL) return;
     value_free(current->data);
-    current->data = make_char(val);
+    current->data = v;
 }
 
 void _list_update_at_string(LinkedList *list, int index, const char *val) {
@@ -388,8 +420,10 @@ void _list_update_at_string(LinkedList *list, int index, const char *val) {
         current = current->next;
     }
     
+    Value *v = make_string(val);
+    if (v == NULL) return;
     value_free(current->data);
-    current->data = make_string(val);
+    current->data = v;
 }
 
 // Size
@@ -400,6 +434,7 @@ int list_size(LinkedList *list) {
 
 // Contains implementations
 int _list_contains_int(LinkedList *list, int val) {
+    if (list == NULL) return 0;
     Value tmp = {TYPE_INT, {.i = val}};
     BRNode *current = list->head;
     while (current != NULL) {
@@ -410,6 +445,7 @@ int _list_contains_int(LinkedList *list, int val) {
 }
 
 int _list_contains_double(LinkedList *list, double val) {
+    if (list == NULL) return 0;
     Value tmp = {TYPE_DOUBLE, {.d = val}};
     BRNode *current = list->head;
     while (current != NULL) {
@@ -420,6 +456,7 @@ int _list_contains_double(LinkedList *list, double val) {
 }
 
 int _list_contains_char(LinkedList *list, char val) {
+    if (list == NULL) return 0;
     Value tmp = {TYPE_CHAR, {.c = val}};
     BRNode *current = list->head;
     while (current != NULL) {
@@ -430,6 +467,7 @@ int _list_contains_char(LinkedList *list, char val) {
 }
 
 int _list_contains_string(LinkedList *list, const char *val) {
+    if (list == NULL || val == NULL) return 0;
     Value tmp = {TYPE_STRING, {.s = (char*)val}};
     BRNode *current = list->head;
     while (current != NULL) {

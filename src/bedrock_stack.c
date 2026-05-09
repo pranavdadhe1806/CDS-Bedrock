@@ -6,14 +6,16 @@
 #define INITIAL_CAPACITY 4
 
 // Internal helper to ensure capacity (double when full)
-static void _ensure_capacity(BRStack *stack) {
+static int _ensure_capacity(BRStack *stack) {
+    if (stack == NULL) return 0;
     if (stack->top >= stack->capacity) {
         int new_capacity = stack->capacity * 2;
         Value **new_data = realloc(stack->data, new_capacity * sizeof(Value*));
-        if (new_data == NULL) return;  // Allocation failed
+        if (new_data == NULL) return 0;
         stack->data = new_data;
         stack->capacity = new_capacity;
     }
+    return 1;
 }
 
 BRStack* BRStack_new(void) {
@@ -40,26 +42,34 @@ void BRStack_destroy(BRStack *stack) {
 
 // Type-specific push implementations
 void _brstack_push_int(BRStack *stack, int val) {
-    _ensure_capacity(stack);
-    stack->data[stack->top] = make_int(val);
+    if (!_ensure_capacity(stack)) return;
+    Value *v = make_int(val);
+    if (v == NULL) return;
+    stack->data[stack->top] = v;
     stack->top++;
 }
 
 void _brstack_push_double(BRStack *stack, double val) {
-    _ensure_capacity(stack);
-    stack->data[stack->top] = make_double(val);
+    if (!_ensure_capacity(stack)) return;
+    Value *v = make_double(val);
+    if (v == NULL) return;
+    stack->data[stack->top] = v;
     stack->top++;
 }
 
 void _brstack_push_char(BRStack *stack, char val) {
-    _ensure_capacity(stack);
-    stack->data[stack->top] = make_char(val);
+    if (!_ensure_capacity(stack)) return;
+    Value *v = make_char(val);
+    if (v == NULL) return;
+    stack->data[stack->top] = v;
     stack->top++;
 }
 
 void _brstack_push_string(BRStack *stack, const char *val) {
-    _ensure_capacity(stack);
-    stack->data[stack->top] = make_string(val);
+    if (!_ensure_capacity(stack)) return;
+    Value *v = make_string(val);
+    if (v == NULL) return;
+    stack->data[stack->top] = v;
     stack->top++;
 }
 
@@ -93,6 +103,7 @@ void brstack_clear(BRStack *stack) {
     
     for (int i = 0; i < stack->top; i++) {
         value_free(stack->data[i]);
+        stack->data[i] = NULL;
     }
     stack->top = 0;
 }

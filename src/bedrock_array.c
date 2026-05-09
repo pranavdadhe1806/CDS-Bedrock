@@ -3,9 +3,14 @@
 
 BRArray *BRArray_new(void) {
     BRArray *arr = malloc(sizeof(BRArray));
+    if (arr == NULL) return NULL;
     arr->size = 0;
     arr->capacity = 4;
-    arr->data = malloc(arr->capacity * sizeof(Value *));
+    arr->data = malloc((size_t)arr->capacity * sizeof(Value *));
+    if (arr->data == NULL) {
+        free(arr);
+        return NULL;
+    }
     return arr;
 }
 
@@ -19,34 +24,47 @@ void BRArray_destroy(BRArray *arr) {
     free(arr);
 }
 
-static void _ensure_capacity(BRArray *arr) {
+static int _ensure_capacity(BRArray *arr) {
+    if (arr == NULL) return 0;
     if (arr->size == arr->capacity) {
-        arr->capacity *= 2;
-        arr->data = realloc(arr->data, arr->capacity * sizeof(Value *));
+        int new_capacity = arr->capacity * 2;
+        Value **new_data = realloc(arr->data, (size_t)new_capacity * sizeof(Value *));
+        if (new_data == NULL) return 0;
+        arr->data = new_data;
+        arr->capacity = new_capacity;
     }
+    return 1;
 }
 
 void _brarray_push_int(BRArray *arr, int val) {
-    _ensure_capacity(arr);
-    arr->data[arr->size] = make_int(val);
+    if (!_ensure_capacity(arr)) return;
+    Value *v = make_int(val);
+    if (v == NULL) return;
+    arr->data[arr->size] = v;
     arr->size++;
 }
 
 void _brarray_push_double(BRArray *arr, double val) {
-    _ensure_capacity(arr);
-    arr->data[arr->size] = make_double(val);
+    if (!_ensure_capacity(arr)) return;
+    Value *v = make_double(val);
+    if (v == NULL) return;
+    arr->data[arr->size] = v;
     arr->size++;
 }
 
 void _brarray_push_char(BRArray *arr, char val) {
-    _ensure_capacity(arr);
-    arr->data[arr->size] = make_char(val);
+    if (!_ensure_capacity(arr)) return;
+    Value *v = make_char(val);
+    if (v == NULL) return;
+    arr->data[arr->size] = v;
     arr->size++;
 }
 
 void _brarray_push_string(BRArray *arr, const char *val) {
-    _ensure_capacity(arr);
-    arr->data[arr->size] = make_string(val);
+    if (!_ensure_capacity(arr)) return;
+    Value *v = make_string(val);
+    if (v == NULL) return;
+    arr->data[arr->size] = v;
     arr->size++;
 }
 
@@ -69,10 +87,14 @@ Value *brarray_pop(BRArray *arr) {
 
 void brarray_insert(BRArray *arr, int index, Value *val) {
     if (arr == NULL || val == NULL || index < 0 || index > arr->size) {
+        value_free(val);
         return;
     }
 
-    _ensure_capacity(arr);
+    if (!_ensure_capacity(arr)) {
+        value_free(val);
+        return;
+    }
 
     // Shift elements to the right
     for (int i = arr->size; i > index; i--) {
@@ -100,6 +122,7 @@ void brarray_delete(BRArray *arr, int index) {
 
 void brarray_update(BRArray *arr, int index, Value *val) {
     if (arr == NULL || val == NULL || index < 0 || index >= arr->size) {
+        value_free(val);
         return;
     }
 
@@ -128,6 +151,7 @@ void brarray_clear(BRArray *arr) {
 
     for (int i = 0; i < arr->size; i++) {
         value_free(arr->data[i]);
+        arr->data[i] = NULL;
     }
     arr->size = 0;
 }

@@ -45,10 +45,10 @@ int   _list_contains_string   (LinkedList *list, const char *val);
 
 Value  *list_peek_front  (LinkedList *list);
 Value  *list_peek_back   (LinkedList *list);
-Value  *list_pop_front   (LinkedList *list);
-Value  *list_pop_back    (LinkedList *list);
+Value  *list_pop_front   (LinkedList *list);       // caller owns returned Value*
+Value  *list_pop_back    (LinkedList *list);       // caller owns returned Value*
 Value  *list_get_at      (LinkedList *list, int index);
-void    list_remove_at   (LinkedList *list, int index);
+void    list_remove_at   (LinkedList *list, int index); // frees removed Value internally
 int     list_size        (LinkedList *list);
 void    list_reverse     (LinkedList *list);
 void    list_clear       (LinkedList *list);

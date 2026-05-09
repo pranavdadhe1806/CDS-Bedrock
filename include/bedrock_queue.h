@@ -22,7 +22,7 @@ void _brqueue_enqueue_char(BRQueue *queue, char val);
 void _brqueue_enqueue_string(BRQueue *queue, const char *val);
 
 // Core operations
-Value* brqueue_dequeue(BRQueue *queue);
+Value* brqueue_dequeue(BRQueue *queue); // caller owns returned Value*
 Value* brqueue_peek(BRQueue *queue);
 int    brqueue_is_empty(BRQueue *queue);
 int    brqueue_size(BRQueue *queue);

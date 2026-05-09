@@ -7,11 +7,12 @@
 
 // Internal helper to normalize buffer (move elements to start of array)
 // This simplifies resizing by ensuring elements are contiguous
-static void _normalize_buffer(BRQueue *queue) {
-    if (queue->head == 0) return;  // Already normalized
+static int _normalize_buffer(BRQueue *queue) {
+    if (queue == NULL) return 0;
+    if (queue->head == 0) return 1;
     
     Value **new_data = malloc(queue->capacity * sizeof(Value*));
-    if (new_data == NULL) return;
+    if (new_data == NULL) return 0;
     
     // Copy elements in order: head to end, then 0 to tail
     int j = 0;
@@ -24,21 +25,25 @@ static void _normalize_buffer(BRQueue *queue) {
     queue->data = new_data;
     queue->head = 0;
     queue->tail = queue->size;
+    return 1;
 }
 
 // Internal helper to ensure capacity (double when full)
-static void _ensure_capacity(BRQueue *queue) {
-    if (queue->size < queue->capacity) return;
+static int _ensure_capacity(BRQueue *queue) {
+    if (queue == NULL) return 0;
+    if (queue->size < queue->capacity) return 1;
     
     // Normalize before resizing to make elements contiguous
-    _normalize_buffer(queue);
+    if (!_normalize_buffer(queue)) return 0;
     
     int new_capacity = queue->capacity * 2;
     Value **new_data = realloc(queue->data, new_capacity * sizeof(Value*));
-    if (new_data == NULL) return;  // Allocation failed
+    if (new_data == NULL) return 0;
     
     queue->data = new_data;
     queue->capacity = new_capacity;
+    queue->tail = queue->size;
+    return 1;
 }
 
 BRQueue* BRQueue_new(void) {
@@ -67,29 +72,37 @@ void BRQueue_destroy(BRQueue *queue) {
 
 // Type-specific enqueue implementations
 void _brqueue_enqueue_int(BRQueue *queue, int val) {
-    _ensure_capacity(queue);
-    queue->data[queue->tail] = make_int(val);
+    if (!_ensure_capacity(queue)) return;
+    Value *v = make_int(val);
+    if (v == NULL) return;
+    queue->data[queue->tail] = v;
     queue->tail = (queue->tail + 1) % queue->capacity;
     queue->size++;
 }
 
 void _brqueue_enqueue_double(BRQueue *queue, double val) {
-    _ensure_capacity(queue);
-    queue->data[queue->tail] = make_double(val);
+    if (!_ensure_capacity(queue)) return;
+    Value *v = make_double(val);
+    if (v == NULL) return;
+    queue->data[queue->tail] = v;
     queue->tail = (queue->tail + 1) % queue->capacity;
     queue->size++;
 }
 
 void _brqueue_enqueue_char(BRQueue *queue, char val) {
-    _ensure_capacity(queue);
-    queue->data[queue->tail] = make_char(val);
+    if (!_ensure_capacity(queue)) return;
+    Value *v = make_char(val);
+    if (v == NULL) return;
+    queue->data[queue->tail] = v;
     queue->tail = (queue->tail + 1) % queue->capacity;
     queue->size++;
 }
 
 void _brqueue_enqueue_string(BRQueue *queue, const char *val) {
-    _ensure_capacity(queue);
-    queue->data[queue->tail] = make_string(val);
+    if (!_ensure_capacity(queue)) return;
+    Value *v = make_string(val);
+    if (v == NULL) return;
+    queue->data[queue->tail] = v;
     queue->tail = (queue->tail + 1) % queue->capacity;
     queue->size++;
 }
@@ -125,6 +138,7 @@ void brqueue_clear(BRQueue *queue) {
     for (int i = 0; i < queue->size; i++) {
         int idx = (queue->head + i) % queue->capacity;
         value_free(queue->data[idx]);
+        queue->data[idx] = NULL;
     }
     
     queue->head = 0;

@@ -36,6 +36,7 @@ static unsigned int _hash_char(char val, int capacity) {
 }
 
 static unsigned int _hash_string(const char *val, int capacity) {
+    if (val == NULL) return 0;
     /* djb2 */
     unsigned long hash = 5381;
     int c;
@@ -47,6 +48,7 @@ static unsigned int _hash_string(const char *val, int capacity) {
 
 /* Dispatch hash function for any Value */
 static unsigned int _hash_value(const Value *val, int capacity) {
+    if (val == NULL || capacity <= 0) return 0;
     switch (val->type) {
         case TYPE_INT:    return _hash_int(val->as.i, capacity);
         case TYPE_DOUBLE: return _hash_double(val->as.d, capacity);

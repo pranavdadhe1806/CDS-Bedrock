@@ -8,6 +8,8 @@
 #include "bedrock_queue.h"
 #include "bedrock_bst.h"
 #include "bedrock_hmap.h"
+#include "bedrock_heap.h"
+#include "bedrock_graph.h"
 
 // ==================== ARRAY MACROS ====================
 
@@ -411,5 +413,20 @@ static inline int _hmap_remove_string(HMap *map, const char *k) {
     char*:       _hmap_remove_string,           \
     const char*: _hmap_remove_string            \
 )(map, key)
+
+// ==================== HEAP MACROS ====================
+
+#define heap_insert(heap, val) _Generic((val),  \
+    int:         _heap_insert_int,              \
+    double:      _heap_insert_double,           \
+    char:        _heap_insert_char,             \
+    char*:       _heap_insert_string,           \
+    const char*: _heap_insert_string            \
+)(heap, val)
+
+#define heap_top(heap)      heap_peek(heap)
+#define heap_pop(heap)      heap_extract(heap)
+#define heap_len(heap)      heap_size(heap)
+#define heap_empty(heap)    heap_is_empty(heap)
 
 #endif // BEDROCK_H

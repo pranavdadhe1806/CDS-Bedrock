@@ -4,8 +4,8 @@
 #include "../include/bedrock_queue.h"
 #include "../include/bedrock_bst.h"
 #include "../include/bedrock_hmap.h"
-#include "../include/heap.h"
-#include "../include/graph.h"
+#include "../include/bedrock_heap.h"
+#include "../include/bedrock_graph.h"
 #include <stdio.h>
 
 void example_dyn_array(void) {

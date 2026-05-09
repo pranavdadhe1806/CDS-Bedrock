@@ -6,6 +6,11 @@
 static BRBSTNode *_insert_recursive(BRBSTNode *node, Value *val, int *created) {
     if (node == NULL) {
         BRBSTNode *new_node = malloc(sizeof(BRBSTNode));
+        if (new_node == NULL) {
+            value_free(val);
+            *created = 0;
+            return NULL;
+        }
         new_node->data = val;
         new_node->left = NULL;
         new_node->right = NULL;
@@ -47,6 +52,20 @@ static BRBSTNode *_find_min_node(BRBSTNode *node) {
     return node;
 }
 
+static BRBSTNode *_detach_min_node(BRBSTNode *node, Value **detached_data) {
+    if (node == NULL) return NULL;
+
+    if (node->left == NULL) {
+        BRBSTNode *right = node->right;
+        *detached_data = node->data;
+        free(node);
+        return right;
+    }
+
+    node->left = _detach_min_node(node->left, detached_data);
+    return node;
+}
+
 static BRBSTNode *_remove_recursive(BRBSTNode *node, Value *val, int *removed) {
     if (node == NULL) {
         *removed = 0;
@@ -76,11 +95,10 @@ static BRBSTNode *_remove_recursive(BRBSTNode *node, Value *val, int *removed) {
             free(node);
             return temp;
         } else {
-            BRBSTNode *successor = _find_min_node(node->right);
             value_free(node->data);
-            node->data = successor->data;
-            int dummy_removed = 0;
-            node->right = _remove_recursive(node->right, successor->data, &dummy_removed);
+            Value *successor_data = NULL;
+            node->right = _detach_min_node(node->right, &successor_data);
+            node->data = successor_data;
         }
     }
 
@@ -128,6 +146,7 @@ static void _destroy_recursive(BRBSTNode *node) {
 
 BRBST *BRBST_new(void) {
     BRBST *tree = malloc(sizeof(BRBST));
+    if (tree == NULL) return NULL;
     tree->root = NULL;
     tree->size = 0;
     return tree;
@@ -142,6 +161,7 @@ void BRBST_destroy(BRBST *tree) {
 void _brbst_insert_int(BRBST *tree, int val) {
     if (tree == NULL) return;
     Value *v = make_int(val);
+    if (v == NULL) return;
     int created = 0;
     tree->root = _insert_recursive(tree->root, v, &created);
     if (created) tree->size++;
@@ -150,6 +170,7 @@ void _brbst_insert_int(BRBST *tree, int val) {
 void _brbst_insert_double(BRBST *tree, double val) {
     if (tree == NULL) return;
     Value *v = make_double(val);
+    if (v == NULL) return;
     int created = 0;
     tree->root = _insert_recursive(tree->root, v, &created);
     if (created) tree->size++;
@@ -158,6 +179,7 @@ void _brbst_insert_double(BRBST *tree, double val) {
 void _brbst_insert_char(BRBST *tree, char val) {
     if (tree == NULL) return;
     Value *v = make_char(val);
+    if (v == NULL) return;
     int created = 0;
     tree->root = _insert_recursive(tree->root, v, &created);
     if (created) tree->size++;
@@ -166,6 +188,7 @@ void _brbst_insert_char(BRBST *tree, char val) {
 void _brbst_insert_string(BRBST *tree, const char *val) {
     if (tree == NULL) return;
     Value *v = make_string(val);
+    if (v == NULL) return;
     int created = 0;
     tree->root = _insert_recursive(tree->root, v, &created);
     if (created) tree->size++;

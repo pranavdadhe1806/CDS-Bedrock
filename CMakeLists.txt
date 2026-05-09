@@ -28,8 +28,8 @@ add_library(cds-bedrock
     src/bedrock_queue.c
     src/bedrock_bst.c
     src/bedrock_hmap.c
-    src/heap.c
-    src/graph.c
+    src/bedrock_heap.c
+    src/bedrock_graph.c
 )
 
 add_library(cds-bedrock::cds-bedrock ALIAS cds-bedrock)
@@ -78,8 +78,8 @@ if(CDS_BEDROCK_BUILD_TESTS)
         test_queue
         test_bst
         test_bedrock_hmap
-        test_heap
-        test_graph
+        test_bedrock_heap
+        test_bedrock_graph
     )
 
     foreach(test_name IN LISTS CDS_BEDROCK_TESTS)
