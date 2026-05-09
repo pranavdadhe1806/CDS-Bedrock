@@ -7,6 +7,7 @@
 #include "bedrock_stack.h"
 #include "bedrock_queue.h"
 #include "bedrock_bst.h"
+#include "bedrock_hmap.h"
 
 // ==================== ARRAY MACROS ====================
 
@@ -308,5 +309,107 @@ static inline void _brbst_remove_string(BRBST *tree, const char *val) {
 #define bst_inorder(tree)   brbst_inorder(tree)
 #define bst_preorder(tree)  brbst_preorder(tree)
 #define bst_postorder(tree) brbst_postorder(tree)
+
+// ==================== HASH MAP MACROS ====================
+
+/*
+ * hmap_put — nested _Generic: dispatch on key type first, then value type.
+ * Resolves to one of the 16 _hmap_put_*_* functions.
+ */
+#define hmap_put(map, key, val) _Generic((key),                         \
+    int:         _Generic((val),                                         \
+                     int:         _hmap_put_int_int,                     \
+                     double:      _hmap_put_int_double,                  \
+                     char:        _hmap_put_int_char,                    \
+                     char*:       _hmap_put_int_string,                  \
+                     const char*: _hmap_put_int_string),                 \
+    double:      _Generic((val),                                         \
+                     int:         _hmap_put_double_int,                  \
+                     double:      _hmap_put_double_double,               \
+                     char:        _hmap_put_double_char,                 \
+                     char*:       _hmap_put_double_string,               \
+                     const char*: _hmap_put_double_string),              \
+    char:        _Generic((val),                                         \
+                     int:         _hmap_put_char_int,                    \
+                     double:      _hmap_put_char_double,                 \
+                     char:        _hmap_put_char_char,                   \
+                     char*:       _hmap_put_char_string,                 \
+                     const char*: _hmap_put_char_string),                \
+    char*:       _Generic((val),                                         \
+                     int:         _hmap_put_string_int,                  \
+                     double:      _hmap_put_string_double,               \
+                     char:        _hmap_put_string_char,                 \
+                     char*:       _hmap_put_string_string,               \
+                     const char*: _hmap_put_string_string),              \
+    const char*: _Generic((val),                                         \
+                     int:         _hmap_put_string_int,                  \
+                     double:      _hmap_put_string_double,               \
+                     char:        _hmap_put_string_char,                 \
+                     char*:       _hmap_put_string_string,               \
+                     const char*: _hmap_put_string_string)               \
+)(map, key, val)
+
+/*
+ * hmap_lookup helpers — build a stack-allocated Value for comparison only.
+ * The address is passed to hmap_get which never stores it, so this is safe.
+ */
+static inline Value *_hmap_get_int(HMap *map, int k) {
+    Value tmp = {TYPE_INT, {.i = k}};
+    return hmap_get(map, &tmp);
+}
+
+static inline Value *_hmap_get_double(HMap *map, double k) {
+    Value tmp = {TYPE_DOUBLE, {.d = k}};
+    return hmap_get(map, &tmp);
+}
+
+static inline Value *_hmap_get_char(HMap *map, char k) {
+    Value tmp = {TYPE_CHAR, {.c = k}};
+    return hmap_get(map, &tmp);
+}
+
+static inline Value *_hmap_get_string(HMap *map, const char *k) {
+    Value tmp = {TYPE_STRING, {.s = (char *)k}};
+    return hmap_get(map, &tmp);
+}
+
+#define hmap_lookup(map, key) _Generic((key),   \
+    int:         _hmap_get_int,                 \
+    double:      _hmap_get_double,              \
+    char:        _hmap_get_char,                \
+    char*:       _hmap_get_string,              \
+    const char*: _hmap_get_string               \
+)(map, key)
+
+/*
+ * hmap_delete helpers — same stack-Value trick as above.
+ */
+static inline int _hmap_remove_int(HMap *map, int k) {
+    Value tmp = {TYPE_INT, {.i = k}};
+    return hmap_remove(map, &tmp);
+}
+
+static inline int _hmap_remove_double(HMap *map, double k) {
+    Value tmp = {TYPE_DOUBLE, {.d = k}};
+    return hmap_remove(map, &tmp);
+}
+
+static inline int _hmap_remove_char(HMap *map, char k) {
+    Value tmp = {TYPE_CHAR, {.c = k}};
+    return hmap_remove(map, &tmp);
+}
+
+static inline int _hmap_remove_string(HMap *map, const char *k) {
+    Value tmp = {TYPE_STRING, {.s = (char *)k}};
+    return hmap_remove(map, &tmp);
+}
+
+#define hmap_delete(map, key) _Generic((key),   \
+    int:         _hmap_remove_int,              \
+    double:      _hmap_remove_double,           \
+    char:        _hmap_remove_char,             \
+    char*:       _hmap_remove_string,           \
+    const char*: _hmap_remove_string            \
+)(map, key)
 
 #endif // BEDROCK_H

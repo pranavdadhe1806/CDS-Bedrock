@@ -82,7 +82,7 @@ cds/
 │   ├── stack.h
 │   ├── queue.h
 │   ├── bst.h
-│   ├── hmap.h
+│   ├── bedrock_hmap.h
 │   ├── heap.h
 │   └── graph.h
 ├── src/
@@ -91,7 +91,7 @@ cds/
 │   ├── stack.c
 │   ├── queue.c
 │   ├── bst.c
-│   ├── hmap.c
+│   ├── bedrock_hmap.c
 │   ├── heap.c
 │   └── graph.c
 ├── tests/
@@ -100,7 +100,7 @@ cds/
 │   ├── test_stack.c
 │   ├── test_queue.c
 │   ├── test_bst.c
-│   ├── test_hmap.c
+│   ├── test_bedrock_hmap.c
 │   ├── test_heap.c
 │   └── test_graph.c
 ├── examples/
