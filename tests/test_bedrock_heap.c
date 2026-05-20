@@ -34,7 +34,7 @@ void test_max_heap_insert_and_extract(void) {
     insert_ints(heap, vals, 5);
     for (int i = 0; i < 5; i++) {
         assert_int_root(heap, expected[i], "max extract order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
     ASSERT(heap_is_empty(heap), "heap should be empty after extracts");
 
@@ -52,7 +52,7 @@ void test_min_heap_insert_and_extract(void) {
     insert_ints(heap, vals, 5);
     for (int i = 0; i < 5; i++) {
         assert_int_root(heap, expected[i], "min extract order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
     ASSERT(heap_is_empty(heap), "heap should be empty after extracts");
 
@@ -80,7 +80,8 @@ void test_extract_empty(void) {
     Heap *heap = Heap_new(1);
     ASSERT(heap != NULL, "Heap_new returned NULL");
 
-    heap_extract(heap);
+    Value *empty_val = heap_extract(heap);
+    ASSERT(empty_val == NULL, "extract from empty heap should return NULL");
     ASSERT(heap_size(heap) == 0, "empty extract should keep size 0");
 
     Heap_destroy(heap);
@@ -112,7 +113,7 @@ void test_heap_property_after_each_extract(void) {
 
     insert_ints(heap, vals, 5);
     for (int i = 0; i < 4; i++) {
-        heap_extract(heap);
+        value_free(heap_extract(heap));
         assert_int_root(heap, roots_after[i], "root should remain max after extract");
     }
 
@@ -130,7 +131,7 @@ void test_heapify_max(void) {
     heap_heapify(heap, arr, 6);
     for (int i = 0; i < 6; i++) {
         assert_int_root(heap, expected[i], "heapify max order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
 
     Heap_destroy(heap);
@@ -147,7 +148,7 @@ void test_heapify_min(void) {
     heap_heapify(heap, arr, 6);
     for (int i = 0; i < 6; i++) {
         assert_int_root(heap, expected[i], "heapify min order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
 
     Heap_destroy(heap);
@@ -169,8 +170,8 @@ void test_heapify_vs_insert_same_result(void) {
         Value *a = heap_peek(inserted);
         Value *b = heap_peek(heapified);
         ASSERT(value_equals(a, b), "heapify and insert extraction sequences should match");
-        heap_extract(inserted);
-        heap_extract(heapified);
+        value_free(heap_extract(inserted));
+        value_free(heap_extract(heapified));
     }
 
     Heap_destroy(inserted);
@@ -191,7 +192,7 @@ void test_resize_trigger(void) {
 
     for (int i = 0; i < 9; i++) {
         assert_int_root(heap, expected[i], "resize extraction order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
 
     Heap_destroy(heap);
@@ -204,8 +205,8 @@ void test_size_tracking(void) {
     ASSERT(heap != NULL, "Heap_new returned NULL");
 
     for (int i = 0; i < 5; i++) heap_insert(heap, i);
-    heap_extract(heap);
-    heap_extract(heap);
+    value_free(heap_extract(heap));
+    value_free(heap_extract(heap));
     ASSERT(heap_size(heap) == 3, "size should be 3 after two extracts");
 
     Heap_destroy(heap);
@@ -260,7 +261,7 @@ void test_string_min_heap(void) {
         Value *root = heap_peek(heap);
         ASSERT(root != NULL && root->type == TYPE_STRING, "root should be TYPE_STRING");
         ASSERT(strcmp(root->as.s, expected[i]) == 0, "string min order mismatch");
-        heap_extract(heap);
+        value_free(heap_extract(heap));
     }
 
     Heap_destroy(heap);

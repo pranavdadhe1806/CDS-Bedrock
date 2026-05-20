@@ -22,7 +22,7 @@ void   _heap_insert_double(Heap *heap, double val);
 void   _heap_insert_char(Heap *heap, char val);
 void   _heap_insert_string(Heap *heap, const char *val);
 
-void   heap_extract(Heap *heap); // prints and frees root internally
+Value *heap_extract(Heap *heap); // caller owns returned Value*
 Value *heap_peek(Heap *heap);
 void   heap_heapify(Heap *heap, Value **arr, int n);
 int    heap_size(Heap *heap);

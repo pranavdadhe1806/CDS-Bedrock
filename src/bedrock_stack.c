@@ -10,7 +10,7 @@ static int _ensure_capacity(BRStack *stack) {
     if (stack == NULL) return 0;
     if (stack->top >= stack->capacity) {
         int new_capacity = stack->capacity * 2;
-        Value **new_data = realloc(stack->data, new_capacity * sizeof(Value*));
+        Value **new_data = realloc(stack->data, (size_t)new_capacity * sizeof(Value*));
         if (new_data == NULL) return 0;
         stack->data = new_data;
         stack->capacity = new_capacity;

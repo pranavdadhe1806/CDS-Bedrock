@@ -117,6 +117,7 @@ void brarray_delete(BRArray *arr, int index) {
         arr->data[i] = arr->data[i + 1];
     }
 
+    arr->data[arr->size - 1] = NULL;
     arr->size--;
 }
 

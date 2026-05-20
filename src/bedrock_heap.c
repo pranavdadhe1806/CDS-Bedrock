@@ -113,29 +113,23 @@ void _heap_insert_string(Heap *heap, const char *val) {
     _heap_insert_value(heap, make_string(val));
 }
 
-void heap_extract(Heap *heap) {
+Value *heap_extract(Heap *heap) {
     if (heap == NULL || heap->size == 0) {
-        printf("Heap is empty\n");
-        return;
+        return NULL;
     }
 
     Value *root = heap->data[0];
-    value_print(root);
-    printf("\n");
 
     heap->size--;
     if (heap->size > 0) {
         heap->data[0] = heap->data[heap->size];
         heap->data[heap->size] = NULL;
+        _bubble_down(heap, 0);
     } else {
         heap->data[0] = NULL;
     }
 
-    value_free(root);
-
-    if (heap->size > 0) {
-        _bubble_down(heap, 0);
-    }
+    return root; // caller owns this value — must call value_free() when done
 }
 
 Value *heap_peek(Heap *heap) {

@@ -11,7 +11,7 @@ static int _normalize_buffer(BRQueue *queue) {
     if (queue == NULL) return 0;
     if (queue->head == 0) return 1;
     
-    Value **new_data = malloc(queue->capacity * sizeof(Value*));
+    Value **new_data = malloc((size_t)queue->capacity * sizeof(Value*));
     if (new_data == NULL) return 0;
     
     // Copy elements in order: head to end, then 0 to tail
@@ -37,7 +37,7 @@ static int _ensure_capacity(BRQueue *queue) {
     if (!_normalize_buffer(queue)) return 0;
     
     int new_capacity = queue->capacity * 2;
-    Value **new_data = realloc(queue->data, new_capacity * sizeof(Value*));
+    Value **new_data = realloc(queue->data, (size_t)new_capacity * sizeof(Value*));
     if (new_data == NULL) return 0;
     
     queue->data = new_data;
