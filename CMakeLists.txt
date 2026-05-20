@@ -74,12 +74,11 @@ if(CDS_BEDROCK_BUILD_TESTS)
         test_bedrock_list
         test_bedrock_stack
         test_bedrock_queue
-        test_stack
-        test_queue
         test_bst
         test_bedrock_hmap
         test_bedrock_heap
         test_bedrock_graph
+        test_edge_cases
     )
 
     foreach(test_name IN LISTS CDS_BEDROCK_TESTS)

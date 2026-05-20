@@ -1,11 +1,11 @@
-# CDS-Bedrock - WSL First Run Checklist
-# 1. cd /mnt/c/Users/<you>/path/to/cds-bedrock
-# 2. make clean
-# 3. make all        - should compile with zero warnings
-# 4. make test       - all tests should pass
-# 5. make asan       - no memory errors reported
-# 6. make valgrind   - 0 bytes lost in every test
-# If any step fails, fix it before moving to the next
+# CDS-Bedrock Makefile
+#
+# Usage:
+#   make all      - compile all tests
+#   make test     - compile and run all tests
+#   make asan     - compile with AddressSanitizer and run tests (Linux/macOS)
+#   make valgrind - run tests under Valgrind (Linux)
+#   make clean    - remove compiled binaries
 
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
@@ -16,12 +16,13 @@ SRCS = src/value.c src/bedrock_array.c src/bedrock_list.c \
        src/bedrock_hmap.c src/bedrock_heap.c src/bedrock_graph.c
 
 TESTS = test_bedrock_array test_bedrock_list test_bedrock_stack \
-        test_bedrock_queue test_stack test_queue test_bst \
-        test_bedrock_hmap test_bedrock_heap test_bedrock_graph
+        test_bedrock_queue test_bst \
+        test_bedrock_hmap test_bedrock_heap test_bedrock_graph \
+        test_edge_cases
 
 TEST_BINS = $(addprefix tests/,$(TESTS))
 
-.PHONY: all test asan valgrind clean
+.PHONY: all test asan valgrind clean help
 
 all: $(TEST_BINS)
 
@@ -31,7 +32,7 @@ tests/%: tests/%.c $(SRCS)
 test: all
 	@set -e; \
 	for t in $(TEST_BINS); do \
-		printf "Running %-28s" "$$t"; \
+		printf "Running %-35s" "$$t"; \
 		if ./$$t > /tmp/cds-bedrock-test.log 2>&1; then \
 			echo "PASS"; \
 		else \
@@ -41,7 +42,7 @@ test: all
 		fi; \
 	done
 
-asan: CFLAGS += -fsanitize=address -fsanitize=leak
+asan: CFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
 asan: clean all test
 
 valgrind: all
@@ -53,8 +54,12 @@ valgrind: all
 	valgrind --leak-check=full --error-exitcode=1 ./tests/test_bedrock_hmap
 	valgrind --leak-check=full --error-exitcode=1 ./tests/test_bedrock_heap
 	valgrind --leak-check=full --error-exitcode=1 ./tests/test_bedrock_graph
+	valgrind --leak-check=full --error-exitcode=1 ./tests/test_edge_cases
 
 clean:
 	rm -f $(TEST_BINS)
 	rm -f tests/*.exe
 	rm -rf build/asan
+
+help:
+	@echo "Targets: all test asan valgrind clean help"
