@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake --preset release
+
+    - name: Build Release
+      run: cmake --build --preset release
+
+    - name: Package Source
+      run: |
+        mkdir -p build/release-pkg
+        tar -czvf build/release-pkg/cds-bedrock-src-${{ github.ref_name }}.tar.gz include/ src/ CMakeLists.txt CMakePresets.json README.md LICENSE
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build/release-pkg/cds-bedrock-src-*.tar.gz
+        generate_release_notes: true

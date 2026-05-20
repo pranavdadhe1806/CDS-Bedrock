@@ -1,0 +1,26 @@
+name: AddressSanitizer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-asan:
+    name: ASan Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake with ASan
+      # The preset 'asan' is defined in CMakePresets.json with -fsanitize=address,undefined and -fno-omit-frame-pointer
+      run: cmake --preset asan
+
+    - name: Build
+      run: cmake --build --preset asan
+
+    - name: Test under ASan
+      run: ctest --preset asan --output-on-failure

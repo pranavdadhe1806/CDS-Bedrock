@@ -5,6 +5,9 @@ Foundational data structures built from scratch in C11.
 ![C11](https://img.shields.io/badge/C-11-blue?style=flat-square&logo=c)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 ![Build: CMake](https://img.shields.io/badge/Build-CMake-orange?style=flat-square)
+[![Build and Test](https://github.com/pranavdadhe1806/CDS-Bedrock/actions/workflows/build.yml/badge.svg)](https://github.com/pranavdadhe1806/CDS-Bedrock/actions/workflows/build.yml)
+[![AddressSanitizer](https://github.com/pranavdadhe1806/CDS-Bedrock/actions/workflows/asan.yml/badge.svg)](https://github.com/pranavdadhe1806/CDS-Bedrock/actions/workflows/asan.yml)
+[![Release](https://github.com/pranavdadhe1806/CDS-Bedrock/actions/workflows/release.yml/badge.svg)](https://github.com/pranavdadhe1806/CDS-Bedrock/releases)
 
 CDS-Bedrock is a C11 data structures library with explicit memory management and a small public API. It is packaged with CMake for local builds, GitHub release artifacts, and vcpkg integration.
 
