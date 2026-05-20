@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #define INITIAL_CAPACITY 4
 
@@ -9,6 +10,7 @@
 static int _ensure_capacity(BRStack *stack) {
     if (stack == NULL) return 0;
     if (stack->top >= stack->capacity) {
+        if (stack->capacity > INT_MAX / 2) return 0; /* overflow guard */
         int new_capacity = stack->capacity * 2;
         Value **new_data = realloc(stack->data, (size_t)new_capacity * sizeof(Value*));
         if (new_data == NULL) return 0;

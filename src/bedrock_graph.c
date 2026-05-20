@@ -92,7 +92,7 @@ void graph_destroy(Graph *graph) {
         AdjNode *current = graph->adj_lists[i];
         while (current != NULL) {
             AdjNode *next = current->next;
-            if (graph->free_fn != NULL) {
+            if (graph->free_fn != NULL && current->weight != NULL) {
                 graph->free_fn(current->weight);
             }
             free(current);
@@ -124,7 +124,7 @@ int graph_remove_edge(Graph *graph, int src, int dest) {
 
     int removed = _remove_directed_edge(graph, src, dest, 1);
     if (!graph->directed) {
-        _remove_directed_edge(graph, dest, src, 1);
+        _remove_directed_edge(graph, dest, src, 0);
     }
 
     return removed;

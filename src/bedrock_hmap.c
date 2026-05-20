@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 /* ===================================================================
  * Internal hash functions — one per primitive type
@@ -140,6 +141,7 @@ static void _hmap_put_value(HMap *map, Value *key, Value *value) {
 
 /* Double capacity and re-insert only SLOT_OCCUPIED entries */
 static void _hmap_resize(HMap *map) {
+    if (map->capacity > INT_MAX / 2) return; /* overflow guard */
     int new_capacity = map->capacity * 2;
     HMapEntry *new_entries = malloc((size_t)new_capacity * sizeof(HMapEntry));
     if (new_entries == NULL) return;          /* allocation failure — keep old state */

@@ -1,5 +1,6 @@
 #include "../include/bedrock_array.h"
 #include <stdio.h>
+#include <limits.h>
 
 BRArray *BRArray_new(void) {
     BRArray *arr = malloc(sizeof(BRArray));
@@ -27,6 +28,7 @@ void BRArray_destroy(BRArray *arr) {
 static int _ensure_capacity(BRArray *arr) {
     if (arr == NULL) return 0;
     if (arr->size == arr->capacity) {
+        if (arr->capacity > INT_MAX / 2) return 0; /* overflow guard */
         int new_capacity = arr->capacity * 2;
         Value **new_data = realloc(arr->data, (size_t)new_capacity * sizeof(Value *));
         if (new_data == NULL) return 0;

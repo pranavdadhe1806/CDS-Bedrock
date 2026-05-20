@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #define INITIAL_CAPACITY 4
 
@@ -36,6 +37,7 @@ static int _ensure_capacity(BRQueue *queue) {
     // Normalize before resizing to make elements contiguous
     if (!_normalize_buffer(queue)) return 0;
     
+    if (queue->capacity > INT_MAX / 2) return 0; /* overflow guard */
     int new_capacity = queue->capacity * 2;
     Value **new_data = realloc(queue->data, (size_t)new_capacity * sizeof(Value*));
     if (new_data == NULL) return 0;

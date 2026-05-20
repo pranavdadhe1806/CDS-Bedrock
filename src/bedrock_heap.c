@@ -1,6 +1,7 @@
 #include "../include/bedrock_heap.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 static int _heap_cmp(Heap *heap, int i, int j) {
     int cmp = value_compare(heap->data[i], heap->data[j]);
@@ -11,6 +12,7 @@ static int _ensure_capacity(Heap *heap) {
     if (heap == NULL) return 0;
     if (heap->size < heap->capacity) return 1;
 
+    if (heap->capacity > INT_MAX / 2) return 0; /* overflow guard */
     int new_capacity = heap->capacity * 2;
     Value **new_data = realloc(heap->data, (size_t)new_capacity * sizeof(Value *));
     if (new_data == NULL) return 0;
