@@ -7,6 +7,7 @@ typedef struct BRBSTNode {
     Value             *data;
     struct BRBSTNode *left;
     struct BRBSTNode *right;
+    int               height;
 } BRBSTNode;
 
 typedef struct {
@@ -24,19 +25,19 @@ void      _brbst_insert_double(BRBST *tree, double val);
 void      _brbst_insert_char(BRBST *tree, char val);
 void      _brbst_insert_string(BRBST *tree, const char *val);
 
-int       brbst_search(BRBST *tree, Value *val);        /* borrows val for comparison */
+int       brbst_search(const BRBST *tree, Value *val);        /* borrows val for comparison */
 void      brbst_remove(BRBST *tree, Value *val);        /* borrows val; frees matched node’s Value internally */
 
 /* Returns BORROWED pointer; caller must NOT free */
-Value     *brbst_find_min(BRBST *tree);
-Value     *brbst_find_max(BRBST *tree);
+Value     *brbst_find_min(const BRBST *tree);
+Value     *brbst_find_max(const BRBST *tree);
 
-int       brbst_height(BRBST *tree);
-void      brbst_inorder(BRBST *tree);
-void      brbst_preorder(BRBST *tree);
-void      brbst_postorder(BRBST *tree);
-int       brbst_size(BRBST *tree);
-int       brbst_is_empty(BRBST *tree);
+int       brbst_height(const BRBST *tree);
+void      brbst_inorder(const BRBST *tree);
+void      brbst_preorder(const BRBST *tree);
+void      brbst_postorder(const BRBST *tree);
+int       brbst_size(const BRBST *tree);
+int       brbst_is_empty(const BRBST *tree);
 void      brbst_clear(BRBST *tree);                     /* frees all contained Values */
 
 #endif // BEDROCK_BST_H

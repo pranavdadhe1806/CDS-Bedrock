@@ -25,11 +25,11 @@ void _brqueue_enqueue_string(BRQueue *queue, const char *val);
 Value* brqueue_dequeue(BRQueue *queue);
 
 /* Returns BORROWED pointer; caller must NOT free */
-Value* brqueue_peek(BRQueue *queue);
+Value* brqueue_peek(const BRQueue *queue);
 
-int    brqueue_is_empty(BRQueue *queue);
-int    brqueue_size(BRQueue *queue);
+int    brqueue_is_empty(const BRQueue *queue);
+int    brqueue_size(const BRQueue *queue);
 void   brqueue_clear(BRQueue *queue);                    /* frees all contained Values */
-void   brqueue_print(BRQueue *queue);
+void   brqueue_print(const BRQueue *queue);
 
 #endif // BEDROCK_QUEUE_H

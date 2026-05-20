@@ -267,9 +267,9 @@ void test_sorted_insert(void) {
     bst_insert(tree, 5);
     
     ASSERT(bst_size(tree) == 5, "size should be 5");
-    ASSERT(bst_height(tree) == 5, "degenerate tree height should be 5");
+    ASSERT(bst_height(tree) == 3, "AVL tree height should be 3");
     
-    printf("  Inorder (degenerate): ");
+    printf("  Inorder (balanced): ");
     bst_inorder(tree);
     
     BRBST_destroy(tree);

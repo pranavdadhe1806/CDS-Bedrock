@@ -70,7 +70,7 @@ void _brarray_push_string(BRArray *arr, const char *val) {
     arr->size++;
 }
 
-Value *brarray_get(BRArray *arr, int index) {
+Value *brarray_get(const BRArray *arr, int index) {
     if (arr == NULL || index < 0 || index >= arr->size) {
         return NULL;
     }
@@ -133,12 +133,12 @@ void brarray_update(BRArray *arr, int index, Value *val) {
     arr->data[index] = val;
 }
 
-int brarray_size(BRArray *arr) {
+int brarray_size(const BRArray *arr) {
     if (arr == NULL) return 0;
     return arr->size;
 }
 
-int brarray_contains(BRArray *arr, Value *val) {
+int brarray_contains(const BRArray *arr, Value *val) {
     if (arr == NULL || val == NULL) return 0;
 
     for (int i = 0; i < arr->size; i++) {
@@ -159,7 +159,7 @@ void brarray_clear(BRArray *arr) {
     arr->size = 0;
 }
 
-void brarray_print(BRArray *arr) {
+void brarray_print(const BRArray *arr) {
     if (arr == NULL) {
         printf("[]\n");
         return;

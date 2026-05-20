@@ -1,6 +1,7 @@
 #include "../include/value.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <math.h>
 
 Value *make_int(int val) {

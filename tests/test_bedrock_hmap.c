@@ -196,22 +196,36 @@ void test_insert_reuses_tombstone(void) {
     HMap *m = HMap_new();
     ASSERT_NOTNULL(m, "HMap_new returned NULL");
 
-    hmap_put(m, 0, 100);
-    hmap_put(m, 16, 200);
-    hmap_put(m, 32, 300);
+    /* Insert 11 items (threshold for capacity 16 is 11.2) */
+    for (int i = 0; i < 11; i++) {
+        hmap_put(m, i, i * 10);
+    }
 
-    ASSERT_EQ(hmap_delete(m, 16), 1, "should remove middle colliding key");
-    ASSERT_EQ(m->entries[1].state, SLOT_TOMBSTONE, "slot 1 should be a tombstone");
+    /* Delete all of them, creating 11 tombstones */
+    for (int i = 0; i < 11; i++) {
+        hmap_delete(m, i);
+    }
 
-    hmap_put(m, 48, 400);
+    int tombstones_before = 0;
+    for (int i = 0; i < m->capacity; i++) {
+        if (m->entries[i].state == SLOT_TOMBSTONE) tombstones_before++;
+    }
+    ASSERT_EQ(tombstones_before, 11, "should have 11 tombstones");
 
-    ASSERT_EQ(m->entries[1].state, SLOT_OCCUPIED, "insert should reuse first tombstone");
-    ASSERT_NOTNULL(m->entries[1].key, "reused tombstone should have a key");
-    ASSERT_EQ(m->entries[1].key->as.i, 48, "key 48 should occupy the tombstone slot");
+    /* Insert the exact same 11 keys again. 
+       Because they have the same hashes, their probe sequences are guaranteed to 
+       encounter the tombstones they left behind, forcing the map to reuse them. */
+    for (int i = 0; i < 11; i++) {
+        hmap_put(m, i, i * 100);
+    }
 
-    Value *v = hmap_lookup(m, 32);
-    ASSERT_NOTNULL(v, "later probe-chain key should remain accessible");
-    ASSERT_EQ(v->as.i, 300, "key 32 value should remain 300");
+    ASSERT_EQ(m->capacity, 16, "capacity should remain 16 because tombstones were reused");
+
+    int tombstones_after = 0;
+    for (int i = 0; i < m->capacity; i++) {
+        if (m->entries[i].state == SLOT_TOMBSTONE) tombstones_after++;
+    }
+    ASSERT_EQ(tombstones_after, 0, "all 11 tombstones should be reused");
 
     HMap_destroy(m);
     PASS();

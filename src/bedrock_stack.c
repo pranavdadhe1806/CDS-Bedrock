@@ -85,17 +85,17 @@ Value* brstack_pop(BRStack *stack) {
     return value;
 }
 
-Value* brstack_peek(BRStack *stack) {
+Value *brstack_peek(const BRStack *stack) {
     if (stack == NULL || stack->top == 0) return NULL;
     return stack->data[stack->top - 1];
 }
 
-int brstack_is_empty(BRStack *stack) {
+int brstack_is_empty(const BRStack *stack) {
     if (stack == NULL) return 1;
     return stack->top == 0;
 }
 
-int brstack_size(BRStack *stack) {
+int brstack_size(const BRStack *stack) {
     if (stack == NULL) return 0;
     return stack->top;
 }
@@ -110,8 +110,8 @@ void brstack_clear(BRStack *stack) {
     stack->top = 0;
 }
 
-void brstack_print(BRStack *stack) {
-    if (stack == NULL || stack->top == 0) {
+void brstack_print(const BRStack *stack) {
+    if (stack == NULL) {
         printf("Bottom: [] :Top\n");
         return;
     }

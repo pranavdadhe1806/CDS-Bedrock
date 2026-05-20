@@ -134,7 +134,7 @@ Value *heap_extract(Heap *heap) {
     return root; // caller owns this value — must call value_free() when done
 }
 
-Value *heap_peek(Heap *heap) {
+Value *heap_peek(const Heap *heap) {
     if (heap == NULL || heap->size == 0) return NULL;
     return heap->data[0];
 }
@@ -164,12 +164,12 @@ void heap_heapify(Heap *heap, Value **arr, int n) {
     }
 }
 
-int heap_size(Heap *heap) {
+int heap_size(const Heap *heap) {
     if (heap == NULL) return 0;
     return heap->size;
 }
 
-int heap_is_empty(Heap *heap) {
+int heap_is_empty(const Heap *heap) {
     if (heap == NULL) return 1;
     return heap->size == 0;
 }
@@ -184,16 +184,17 @@ void heap_clear(Heap *heap) {
     heap->size = 0;
 }
 
-void heap_print(Heap *heap) {
-    if (heap == NULL || heap->size == 0) {
+void heap_print(const Heap *heap) {
+    if (heap == NULL) {
         printf("[]\n");
         return;
     }
-
     printf("[");
     for (int i = 0; i < heap->size; i++) {
-        if (i > 0) printf(", ");
         value_print(heap->data[i]);
+        if (i < heap->size - 1) {
+            printf(", ");
+        }
     }
     printf("]\n");
 }

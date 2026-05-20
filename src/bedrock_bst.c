@@ -3,6 +3,75 @@
 #include <stdio.h>
 #include <string.h>
 
+static int _height(BRBSTNode *node) {
+    if (node == NULL) return 0;
+    return node->height;
+}
+
+static int _max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+static void _update_height(BRBSTNode *node) {
+    if (node != NULL) {
+        node->height = 1 + _max(_height(node->left), _height(node->right));
+    }
+}
+
+static int _get_balance(BRBSTNode *node) {
+    if (node == NULL) return 0;
+    return _height(node->left) - _height(node->right);
+}
+
+static BRBSTNode *_right_rotate(BRBSTNode *y) {
+    BRBSTNode *x = y->left;
+    BRBSTNode *T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    _update_height(y);
+    _update_height(x);
+
+    return x;
+}
+
+static BRBSTNode *_left_rotate(BRBSTNode *x) {
+    BRBSTNode *y = x->right;
+    BRBSTNode *T2 = y->left;
+
+    y->left = x;
+    x->right = T2;
+
+    _update_height(x);
+    _update_height(y);
+
+    return y;
+}
+
+static BRBSTNode *_balance_node(BRBSTNode *node) {
+    if (node == NULL) return NULL;
+    _update_height(node);
+
+    int balance = _get_balance(node);
+
+    // Left Heavy
+    if (balance > 1) {
+        if (_get_balance(node->left) < 0) {
+            node->left = _left_rotate(node->left);
+        }
+        return _right_rotate(node);
+    }
+    // Right Heavy
+    if (balance < -1) {
+        if (_get_balance(node->right) > 0) {
+            node->right = _right_rotate(node->right);
+        }
+        return _left_rotate(node);
+    }
+    return node;
+}
+
 static BRBSTNode *_insert_recursive(BRBSTNode *node, Value *val, int *created) {
     if (node == NULL) {
         BRBSTNode *new_node = malloc(sizeof(BRBSTNode));
@@ -14,6 +83,7 @@ static BRBSTNode *_insert_recursive(BRBSTNode *node, Value *val, int *created) {
         new_node->data = val;
         new_node->left = NULL;
         new_node->right = NULL;
+        new_node->height = 1;
         *created = 1;
         return new_node;
     }
@@ -26,9 +96,10 @@ static BRBSTNode *_insert_recursive(BRBSTNode *node, Value *val, int *created) {
     } else {
         value_free(val);
         *created = 0;
+        return node;
     }
 
-    return node;
+    return _balance_node(node);
 }
 
 static BRBSTNode *_search_recursive(BRBSTNode *node, Value *val) {
@@ -64,7 +135,7 @@ static BRBSTNode *_detach_min_node(BRBSTNode *node, Value **detached_data) {
     }
 
     node->left = _detach_min_node(node->left, detached_data);
-    return node;
+    return _balance_node(node);
 }
 
 static BRBSTNode *_remove_recursive(BRBSTNode *node, Value *val, int *removed) {
@@ -103,14 +174,7 @@ static BRBSTNode *_remove_recursive(BRBSTNode *node, Value *val, int *removed) {
         }
     }
 
-    return node;
-}
-
-static int _height(BRBSTNode *node) {
-    if (node == NULL) return 0;
-    int left_height = _height(node->left);
-    int right_height = _height(node->right);
-    return 1 + (left_height > right_height ? left_height : right_height);
+    return _balance_node(node);
 }
 
 static void _inorder(BRBSTNode *node) {
@@ -235,9 +299,10 @@ void _brbst_insert_string(BRBST *tree, const char *val) {
     if (created) tree->size++;
 }
 
-int brbst_search(BRBST *tree, Value *val) {
-    if (tree == NULL || val == NULL) return 0;
-    return _search_recursive(tree->root, val) != NULL;
+int brbst_search(const BRBST *tree, Value *val) {
+    if (tree == NULL) return 0;
+    BRBSTNode *node = _search_recursive(tree->root, val);
+    return node != NULL;
 }
 
 void brbst_remove(BRBST *tree, Value *val) {
@@ -247,13 +312,13 @@ void brbst_remove(BRBST *tree, Value *val) {
     if (removed) tree->size--;
 }
 
-Value *brbst_find_min(BRBST *tree) {
+Value *brbst_find_min(const BRBST *tree) {
     if (tree == NULL || tree->root == NULL) return NULL;
-    BRBSTNode *node = _find_min_node(tree->root);
-    return node->data;
+    BRBSTNode *min_node = _find_min_node(tree->root);
+    return min_node->data;
 }
 
-Value *brbst_find_max(BRBST *tree) {
+Value *brbst_find_max(const BRBST *tree) {
     if (tree == NULL || tree->root == NULL) return NULL;
     BRBSTNode *node = tree->root;
     while (node->right != NULL) {
@@ -262,35 +327,35 @@ Value *brbst_find_max(BRBST *tree) {
     return node->data;
 }
 
-int brbst_height(BRBST *tree) {
+int brbst_height(const BRBST *tree) {
     if (tree == NULL) return 0;
     return _height(tree->root);
 }
 
-void brbst_inorder(BRBST *tree) {
+void brbst_inorder(const BRBST *tree) {
     if (tree == NULL) return;
     _inorder(tree->root);
     printf("\n");
 }
 
-void brbst_preorder(BRBST *tree) {
+void brbst_preorder(const BRBST *tree) {
     if (tree == NULL) return;
     _preorder(tree->root);
     printf("\n");
 }
 
-void brbst_postorder(BRBST *tree) {
+void brbst_postorder(const BRBST *tree) {
     if (tree == NULL) return;
     _postorder(tree->root);
     printf("\n");
 }
 
-int brbst_size(BRBST *tree) {
+int brbst_size(const BRBST *tree) {
     if (tree == NULL) return 0;
     return tree->size;
 }
 
-int brbst_is_empty(BRBST *tree) {
+int brbst_is_empty(const BRBST *tree) {
     if (tree == NULL) return 1;
     return tree->size == 0;
 }

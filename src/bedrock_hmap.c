@@ -19,32 +19,43 @@
 #include <limits.h>
 
 /* ===================================================================
- * Internal hash functions — one per primitive type
+ * Internal hash functions — FNV-1a 32-bit
  * =================================================================== */
+#define FNV_PRIME_32 16777619u
+#define FNV_OFFSET_32 2166136261u
+
+static unsigned int _hash_fnv1a(const void *data, size_t length, int capacity) {
+    if (data == NULL) return 0;
+    const unsigned char *p = (const unsigned char *)data;
+    unsigned int hash = FNV_OFFSET_32;
+    for (size_t i = 0; i < length; i++) {
+        hash ^= p[i];
+        hash *= FNV_PRIME_32;
+    }
+    return hash % (unsigned int)capacity;
+}
 
 static unsigned int _hash_int(int val, int capacity) {
-    return (unsigned int)((unsigned int)val * 2654435761u) % (unsigned int)capacity;
+    return _hash_fnv1a(&val, sizeof(int), capacity);
 }
 
 static unsigned int _hash_double(double val, int capacity) {
-    unsigned long long bits;
-    memcpy(&bits, &val, sizeof(bits));
-    return (unsigned int)(bits * 2654435761u) % (unsigned int)capacity;
+    return _hash_fnv1a(&val, sizeof(double), capacity);
 }
 
 static unsigned int _hash_char(char val, int capacity) {
-    return (unsigned int)((unsigned char)val * 31u) % (unsigned int)capacity;
+    return _hash_fnv1a(&val, sizeof(char), capacity);
 }
 
 static unsigned int _hash_string(const char *val, int capacity) {
     if (val == NULL) return 0;
-    /* djb2 */
-    unsigned long hash = 5381;
-    int c;
-    while ((c = (unsigned char)*val++)) {
-        hash = ((hash << 5) + hash) + (unsigned long)c;
+    const unsigned char *p = (const unsigned char *)val;
+    unsigned int hash = FNV_OFFSET_32;
+    while (*p) {
+        hash ^= *p++;
+        hash *= FNV_PRIME_32;
     }
-    return (unsigned int)(hash % (unsigned long)capacity);
+    return hash % (unsigned int)capacity;
 }
 
 /* Dispatch hash function for any Value */
@@ -211,26 +222,21 @@ void HMap_destroy(HMap *map) {
 
 /* Returns the value pointer for key, or NULL if not found.
  * Does NOT transfer ownership — caller must NOT free the returned pointer. */
-Value *hmap_get(HMap *map, Value *key) {
-    if (map == NULL || key == NULL) return NULL;
-
-    unsigned int idx = _hash_value(key, map->capacity);
-
-    for (int i = 0; i < map->capacity; i++) {
-        int probe = (int)((idx + (unsigned int)i) % (unsigned int)map->capacity);
-        HMapEntry *entry = &map->entries[probe];
-
-        if (entry->state == SLOT_EMPTY) {
-            return NULL;   /* probe chain is clean — key absent */
+Value *hmap_get(const HMap *map, Value *key) {
+    if (map == NULL || key == NULL || map->size == 0) return NULL;
+    
+    unsigned int hash = _hash_value(key, map->capacity);
+    unsigned int idx = hash;
+    
+    while (map->entries[idx].state != SLOT_EMPTY) {
+        if (map->entries[idx].state == SLOT_OCCUPIED && 
+            value_equals(map->entries[idx].key, key)) {
+            return map->entries[idx].value;
         }
-        if (entry->state == SLOT_TOMBSTONE) {
-            continue;      /* skip deleted slot, keep probing */
-        }
-        /* SLOT_OCCUPIED */
-        if (value_equals(entry->key, key)) {
-            return entry->value;
-        }
+        idx = (idx + 1) % map->capacity;
+        if (idx == hash) break; // full loop (shouldn't happen with proper load factor)
     }
+    
     return NULL;
 }
 
@@ -264,16 +270,16 @@ int hmap_remove(HMap *map, Value *key) {
     return 0;
 }
 
-int hmap_contains(HMap *map, Value *key) {
+int hmap_contains(const HMap *map, Value *key) {
     return hmap_get(map, key) != NULL;
 }
 
-int hmap_size(HMap *map) {
+int hmap_size(const HMap *map) {
     if (map == NULL) return 0;
     return map->size;
 }
 
-int hmap_is_empty(HMap *map) {
+int hmap_is_empty(const HMap *map) {
     if (map == NULL) return 1;
     return map->size == 0;
 }
@@ -297,13 +303,13 @@ void hmap_clear(HMap *map) {
 
 /* Prints: { key: value, key: value }
  * Skips SLOT_EMPTY and SLOT_TOMBSTONE slots. */
-void hmap_print(HMap *map) {
+void hmap_print(const HMap *map) {
     if (map == NULL) {
-        printf("{ <null map> }\n");
+        printf("{}\n");
         return;
     }
-
-    printf("{ ");
+    
+    printf("{");
     int printed = 0;
     for (int i = 0; i < map->capacity; i++) {
         if (map->entries[i].state == SLOT_OCCUPIED) {
@@ -314,7 +320,7 @@ void hmap_print(HMap *map) {
             printed++;
         }
     }
-    printf(" }\n");
+    printf("}\n");
 }
 
 /* ===================================================================

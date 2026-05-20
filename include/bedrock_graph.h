@@ -28,15 +28,15 @@ void     graph_destroy(Graph *graph);                      /* frees graph + all 
 int      graph_add_edge(Graph *graph, int src, int dest, void *weight);
 int      graph_remove_edge(Graph *graph, int src, int dest); /* frees weight via free_fn */
 
-int      graph_has_edge(Graph *graph, int src, int dest);
+int      graph_has_edge(const Graph *graph, int src, int dest);
 
 /* Returns BORROWED pointer to adjacency list head; caller must NOT free */
-AdjNode *graph_get_adjacent(Graph *graph, int vertex);
+AdjNode *graph_get_adjacent(const Graph *graph, int vertex);
 
-int      graph_num_vertices(Graph *graph);
-int      graph_num_edges(Graph *graph);
-void     graph_print(Graph *graph);
-void     graph_bfs(Graph *graph, int start_vertex, void (*visit)(int vertex));
-void     graph_dfs(Graph *graph, int start_vertex, void (*visit)(int vertex));
+int      graph_num_vertices(const Graph *graph);
+int      graph_num_edges(const Graph *graph);
+void     graph_print(const Graph *graph);
+void     graph_bfs(const Graph *graph, int start_vertex, void (*visit)(int vertex));
+void     graph_dfs(const Graph *graph, int start_vertex, void (*visit)(int vertex));
 
 #endif /* BEDROCK_GRAPH_H */

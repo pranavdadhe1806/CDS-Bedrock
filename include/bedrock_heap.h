@@ -28,14 +28,14 @@ void   _heap_insert_string(Heap *heap, const char *val);
 Value *heap_extract(Heap *heap);
 
 /* Returns BORROWED pointer; caller must NOT free. Returns NULL if empty. */
-Value *heap_peek(Heap *heap);
+Value *heap_peek(const Heap *heap);
 
 /* Heap takes ownership of all arr[0..n-1] elements */
 void   heap_heapify(Heap *heap, Value **arr, int n);
 
-int    heap_size(Heap *heap);
-int    heap_is_empty(Heap *heap);
+int    heap_size(const Heap *heap);
+int    heap_is_empty(const Heap *heap);
 void   heap_clear(Heap *heap);                          /* frees all contained Values */
-void   heap_print(Heap *heap);
+void   heap_print(const Heap *heap);
 
 #endif /* BEDROCK_HEAP_H */

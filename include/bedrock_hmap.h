@@ -34,13 +34,13 @@ void  HMap_destroy(HMap *map);           /* frees keys, values, array, struct */
 /* -----------------------------------------------------------------------
  * Core operations
  * ----------------------------------------------------------------------- */
-Value *hmap_get     (HMap *map, Value *key);           /* NULL if missing  */
+Value *hmap_get     (const HMap *map, Value *key);           /* NULL if missing  */
 int    hmap_remove  (HMap *map, Value *key);           /* 1=found, 0=miss  */
-int    hmap_contains(HMap *map, Value *key);
-int    hmap_size    (HMap *map);
-int    hmap_is_empty(HMap *map);
+int    hmap_contains(const HMap *map, Value *key);
+int    hmap_size    (const HMap *map);
+int    hmap_is_empty(const HMap *map);
 void   hmap_clear   (HMap *map);                       /* keeps array alloc */
-void   hmap_print   (HMap *map);
+void   hmap_print   (const HMap *map);
 
 /* -----------------------------------------------------------------------
  * Type-specific put functions (called via the hmap_put macro in bedrock.h)

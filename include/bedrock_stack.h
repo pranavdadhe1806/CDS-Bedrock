@@ -23,11 +23,11 @@ void _brstack_push_string(BRStack *stack, const char *val);
 Value* brstack_pop(BRStack *stack);
 
 /* Returns BORROWED pointer; caller must NOT free */
-Value* brstack_peek(BRStack *stack);
+Value* brstack_peek(const BRStack *stack);
 
-int    brstack_is_empty(BRStack *stack);
-int    brstack_size(BRStack *stack);
+int    brstack_is_empty(const BRStack *stack);
+int    brstack_size(const BRStack *stack);
 void   brstack_clear(BRStack *stack);                   /* frees all contained Values */
-void   brstack_print(BRStack *stack);
+void   brstack_print(const BRStack *stack);
 
 #endif // BEDROCK_STACK_H

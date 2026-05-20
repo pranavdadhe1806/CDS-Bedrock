@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int _valid_vertex(Graph *graph, int vertex) {
+static int _valid_vertex(const Graph *graph, int vertex) {
     return graph != NULL && vertex >= 0 && vertex < graph->num_vertices;
 }
 
@@ -119,7 +119,7 @@ int graph_remove_edge(Graph *graph, int src, int dest) {
     return removed;
 }
 
-int graph_has_edge(Graph *graph, int src, int dest) {
+int graph_has_edge(const Graph *graph, int src, int dest) {
     if (!_valid_vertex(graph, src) || !_valid_vertex(graph, dest)) return 0;
 
     AdjNode *current = graph->adj_lists[src];
@@ -131,17 +131,17 @@ int graph_has_edge(Graph *graph, int src, int dest) {
     return 0;
 }
 
-AdjNode *graph_get_adjacent(Graph *graph, int vertex) {
+AdjNode *graph_get_adjacent(const Graph *graph, int vertex) {
     if (!_valid_vertex(graph, vertex)) return NULL;
     return graph->adj_lists[vertex];
 }
 
-int graph_num_vertices(Graph *graph) {
+int graph_num_vertices(const Graph *graph) {
     if (graph == NULL) return 0;
     return graph->num_vertices;
 }
 
-int graph_num_edges(Graph *graph) {
+int graph_num_edges(const Graph *graph) {
     if (graph == NULL) return 0;
 
     int count = 0;
@@ -156,7 +156,7 @@ int graph_num_edges(Graph *graph) {
     return graph->directed ? count : count / 2;
 }
 
-void graph_print(Graph *graph) {
+void graph_print(const Graph *graph) {
     if (graph == NULL) {
         printf("<null graph>\n");
         return;
@@ -178,7 +178,7 @@ void graph_print(Graph *graph) {
     }
 }
 
-void graph_bfs(Graph *graph, int start_vertex, void (*visit)(int vertex)) {
+void graph_bfs(const Graph *graph, int start_vertex, void (*visit)(int vertex)) {
     if (!_valid_vertex(graph, start_vertex)) return;
 
     int *visited = calloc((size_t)graph->num_vertices, sizeof(int));
@@ -214,7 +214,7 @@ void graph_bfs(Graph *graph, int start_vertex, void (*visit)(int vertex)) {
     free(visited);
 }
 
-void graph_dfs(Graph *graph, int start_vertex, void (*visit)(int vertex)) {
+void graph_dfs(const Graph *graph, int start_vertex, void (*visit)(int vertex)) {
     if (!_valid_vertex(graph, start_vertex)) return;
 
     int *visited = calloc((size_t)graph->num_vertices, sizeof(int));

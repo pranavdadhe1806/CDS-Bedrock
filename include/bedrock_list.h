@@ -44,24 +44,25 @@ void  _list_update_at_char    (LinkedList *list, int index, char val);
 void  _list_update_at_string  (LinkedList *list, int index, const char *val);
 
 /* Contains — borrows val for comparison only */
-int   _list_contains_int      (LinkedList *list, int val);
-int   _list_contains_double   (LinkedList *list, double val);
-int   _list_contains_char     (LinkedList *list, char val);
-int   _list_contains_string   (LinkedList *list, const char *val);
+int   _list_contains_int      (const LinkedList *list, int val);
+int   _list_contains_double   (const LinkedList *list, double val);
+int   _list_contains_char     (const LinkedList *list, char val);
+int   _list_contains_string   (const LinkedList *list, const char *val);
 
 /* Access — returns BORROWED pointer; caller must NOT free */
-Value  *list_peek_front  (LinkedList *list);
-Value  *list_peek_back   (LinkedList *list);
-Value  *list_get_at      (LinkedList *list, int index);
+Value  *list_peek_front  (const LinkedList *list);
+Value  *list_peek_back   (const LinkedList *list);
+Value  *list_get_at      (const LinkedList *list, int index);
 
 /* Removal — returns OWNED pointer; caller MUST call value_free() */
 Value  *list_pop_front   (LinkedList *list);
 Value  *list_pop_back    (LinkedList *list);
 
 void    list_remove_at   (LinkedList *list, int index);  /* frees removed Value internally */
-int     list_size        (LinkedList *list);
+int     list_size        (const LinkedList *list);
+int     list_is_empty    (const LinkedList *list);
 void    list_reverse     (LinkedList *list);
 void    list_clear       (LinkedList *list);              /* frees all contained Values */
-void    list_print       (LinkedList *list);
+void    list_print       (const LinkedList *list);
 
 #endif // BEDROCK_LIST_H

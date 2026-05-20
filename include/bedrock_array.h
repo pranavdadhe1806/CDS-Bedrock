@@ -20,7 +20,7 @@ void      _brarray_push_char(BRArray *arr, char val);
 void      _brarray_push_string(BRArray *arr, const char *val);
 
 /* Access — returns BORROWED pointer; caller must NOT free */
-Value    *brarray_get(BRArray *arr, int index);
+Value    *brarray_get(const BRArray *arr, int index);
 
 /* Removal — returns OWNED pointer; caller MUST call value_free() */
 Value    *brarray_pop(BRArray *arr);
@@ -30,9 +30,9 @@ void      brarray_insert(BRArray *arr, int index, Value *val);
 void      brarray_delete(BRArray *arr, int index);       /* frees removed Value internally */
 void      brarray_update(BRArray *arr, int index, Value *val);
 
-int       brarray_size(BRArray *arr);
-int       brarray_contains(BRArray *arr, Value *val);    /* borrows val for comparison */
+int       brarray_size(const BRArray *arr);
+int       brarray_contains(const BRArray *arr, Value *val);    /* borrows val for comparison */
 void      brarray_clear(BRArray *arr);                   /* frees all contained Values */
-void      brarray_print(BRArray *arr);
+void      brarray_print(const BRArray *arr);
 
 #endif // BEDROCK_ARRAY_H

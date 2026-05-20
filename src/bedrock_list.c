@@ -200,19 +200,77 @@ void _list_update_at_string(LinkedList *list, int index, const char *val) {
     _list_update_at_value(list, index, make_string(val));
 }
 
+int _list_contains_int(const LinkedList *list, int val) {
+    if (list == NULL) return 0;
+    Value tmp = {TYPE_INT, {.i = val}};
+    BRNode *current = list->head;
+    while (current != NULL) {
+        if (value_equals(current->data, &tmp)) return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
+int _list_contains_double(const LinkedList *list, double val) {
+    if (list == NULL) return 0;
+    Value tmp = {TYPE_DOUBLE, {.d = val}};
+    BRNode *current = list->head;
+    while (current != NULL) {
+        if (value_equals(current->data, &tmp)) return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
+int _list_contains_char(const LinkedList *list, char val) {
+    if (list == NULL) return 0;
+    Value tmp = {TYPE_CHAR, {.c = val}};
+    BRNode *current = list->head;
+    while (current != NULL) {
+        if (value_equals(current->data, &tmp)) return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
+int _list_contains_string(const LinkedList *list, const char *val) {
+    if (list == NULL || val == NULL) return 0;
+    Value tmp = {TYPE_STRING, {.s = (char*)val}};
+    BRNode *current = list->head;
+    while (current != NULL) {
+        if (value_equals(current->data, &tmp)) return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
 /* ===================================================================
- * Peek / Pop / Get / Remove — unchanged
+ * Core access
  * =================================================================== */
 
-Value *list_peek_front(LinkedList *list) {
+Value *list_peek_front(const LinkedList *list) {
     if (list == NULL || list->head == NULL) return NULL;
     return list->head->data;
 }
 
-Value *list_peek_back(LinkedList *list) {
+Value *list_peek_back(const LinkedList *list) {
     if (list == NULL || list->tail == NULL) return NULL;
     return list->tail->data;
 }
+
+Value *list_get_at(const LinkedList *list, int index) {
+    if (list == NULL || index < 0 || index >= list->size) return NULL;
+    
+    BRNode *current = list->head;
+    for (int i = 0; i < index; i++) {
+        current = current->next;
+    }
+    return current->data;
+}
+
+/* ===================================================================
+ * Pop / Remove — unchanged
+ * =================================================================== */
 
 Value *list_pop_front(LinkedList *list) {
     if (list == NULL || list->head == NULL) return NULL;
@@ -252,16 +310,6 @@ Value *list_pop_back(LinkedList *list) {
     return value;
 }
 
-Value *list_get_at(LinkedList *list, int index) {
-    if (list == NULL || index < 0 || index >= list->size) return NULL;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    return current->data;
-}
-
 void list_remove_at(LinkedList *list, int index) {
     if (list == NULL || index < 0 || index >= list->size) return;
     
@@ -292,53 +340,14 @@ void list_remove_at(LinkedList *list, int index) {
  * Utility — size, contains, reverse, clear, print
  * =================================================================== */
 
-int list_size(LinkedList *list) {
+int list_size(const LinkedList *list) {
     if (list == NULL) return 0;
     return list->size;
 }
 
-int _list_contains_int(LinkedList *list, int val) {
-    if (list == NULL) return 0;
-    Value tmp = {TYPE_INT, {.i = val}};
-    BRNode *current = list->head;
-    while (current != NULL) {
-        if (value_equals(current->data, &tmp)) return 1;
-        current = current->next;
-    }
-    return 0;
-}
-
-int _list_contains_double(LinkedList *list, double val) {
-    if (list == NULL) return 0;
-    Value tmp = {TYPE_DOUBLE, {.d = val}};
-    BRNode *current = list->head;
-    while (current != NULL) {
-        if (value_equals(current->data, &tmp)) return 1;
-        current = current->next;
-    }
-    return 0;
-}
-
-int _list_contains_char(LinkedList *list, char val) {
-    if (list == NULL) return 0;
-    Value tmp = {TYPE_CHAR, {.c = val}};
-    BRNode *current = list->head;
-    while (current != NULL) {
-        if (value_equals(current->data, &tmp)) return 1;
-        current = current->next;
-    }
-    return 0;
-}
-
-int _list_contains_string(LinkedList *list, const char *val) {
-    if (list == NULL || val == NULL) return 0;
-    Value tmp = {TYPE_STRING, {.s = (char*)val}};
-    BRNode *current = list->head;
-    while (current != NULL) {
-        if (value_equals(current->data, &tmp)) return 1;
-        current = current->next;
-    }
-    return 0;
+int list_is_empty(const LinkedList *list) {
+    if (list == NULL) return 1;
+    return list->size == 0;
 }
 
 void list_reverse(LinkedList *list) {
@@ -375,21 +384,19 @@ void list_clear(LinkedList *list) {
     list->size = 0;
 }
 
-void list_print(LinkedList *list) {
-    if (list == NULL || list->head == NULL) {
+void list_print(const LinkedList *list) {
+    if (list == NULL) {
         printf("NULL\n");
         return;
     }
     
     BRNode *current = list->head;
     while (current != NULL) {
-        printf("[");
         value_print(current->data);
-        printf("]");
         if (current->next != NULL) {
             printf(" -> ");
         }
         current = current->next;
     }
-    printf(" -> NULL\n");
+    printf("\n");
 }

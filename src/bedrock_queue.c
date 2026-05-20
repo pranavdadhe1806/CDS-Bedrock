@@ -119,17 +119,17 @@ Value* brqueue_dequeue(BRQueue *queue) {
     return value;
 }
 
-Value* brqueue_peek(BRQueue *queue) {
+Value* brqueue_peek(const BRQueue *queue) {
     if (queue == NULL || queue->size == 0) return NULL;
     return queue->data[queue->head];
 }
 
-int brqueue_is_empty(BRQueue *queue) {
+int brqueue_is_empty(const BRQueue *queue) {
     if (queue == NULL) return 1;
     return queue->size == 0;
 }
 
-int brqueue_size(BRQueue *queue) {
+int brqueue_size(const BRQueue *queue) {
     if (queue == NULL) return 0;
     return queue->size;
 }
@@ -148,8 +148,8 @@ void brqueue_clear(BRQueue *queue) {
     queue->size = 0;
 }
 
-void brqueue_print(BRQueue *queue) {
-    if (queue == NULL || queue->size == 0) {
+void brqueue_print(const BRQueue *queue) {
+    if (queue == NULL) {
         printf("Front: [] :Back\n");
         return;
     }
