@@ -1,34 +1,152 @@
-name: Release CDS-Bedrock
+name: Release
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers ONLY when a version tag is pushed, e.g.:  git push origin v1.0.0
+# ─────────────────────────────────────────────────────────────────────────────
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'   # matches v1.0.0, v2.1.3, etc.
 
 jobs:
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1. BUILD  –  Compile on all three platforms and upload per-platform archives
+  # ───────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: release
+            artifact_name: cds-bedrock-linux-x86_64
+            archive_ext: tar.gz
+          - os: windows-latest
+            preset: release
+            artifact_name: cds-bedrock-windows-x86_64
+            archive_ext: zip
+          - os: macos-latest
+            preset: release
+            artifact_name: cds-bedrock-macos-arm64
+            archive_ext: tar.gz
 
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0   # needed so git describe works correctly
+
+    # ── Cache compiled objects to make re-runs fast ──
+    - name: Cache CMake build
+      uses: actions/cache@v4
+      with:
+        path: build/release
+        key: cmake-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'include/**') }}
+        restore-keys: cmake-${{ matrix.os }}-
 
     - name: Configure CMake
-      run: cmake --preset release
+      run: cmake --preset ${{ matrix.preset }}
 
-    - name: Build Release
-      run: cmake --build --preset release
+    - name: Build
+      run: cmake --build --preset ${{ matrix.preset }} --config Release
 
-    - name: Package Source
+    - name: Run tests (smoke check before packaging)
+      run: ctest --preset ${{ matrix.preset }} -C Release --output-on-failure
+
+    # ── Install into a staging prefix ──
+    - name: Install to staging directory
+      run: cmake --install build/release --prefix staging --config Release
+
+    # ── Package the installed tree ──
+    - name: Package (Linux / macOS)
+      if: runner.os != 'Windows'
       run: |
-        mkdir -p build/release-pkg
-        tar -czvf build/release-pkg/cds-bedrock-src-${{ github.ref_name }}.tar.gz include/ src/ CMakeLists.txt CMakePresets.json README.md LICENSE
+        cd staging
+        tar -czvf ../${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.archive_ext }} .
 
-    - name: Create Release
+    - name: Package (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        cd staging
+        Compress-Archive -Path * -DestinationPath ..\${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.archive_ext }}
+
+    # ── Upload artifact so the publish job can grab it ──
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.archive_ext }}
+        retention-days: 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 2. SOURCE ARCHIVE  –  Produce a clean source tarball
+  # ───────────────────────────────────────────────────────────────────────────
+  source-archive:
+    name: Source Archive
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Create source archive
+      run: |
+        git archive \
+          --format=tar.gz \
+          --prefix=cds-bedrock-${{ github.ref_name }}/ \
+          --output=cds-bedrock-src-${{ github.ref_name }}.tar.gz \
+          HEAD
+
+    - name: Upload source archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: source-archive
+        path: cds-bedrock-src-${{ github.ref_name }}.tar.gz
+        retention-days: 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 3. PUBLISH  –  Download all artifacts and create a single GitHub Release
+  # ───────────────────────────────────────────────────────────────────────────
+  publish:
+    name: Publish GitHub Release
+    needs: [build, source-archive]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create a release and upload assets
+
+    steps:
+    - name: Checkout (for CHANGELOG)
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist/          # every artifact ends up in dist/<artifact-name>/
+
+    - name: List dist contents (debug)
+      run: find dist -type f
+
+    - name: Extract CHANGELOG for this version
+      id: changelog
+      run: |
+        # Pull the section between the current tag heading and the next heading.
+        VERSION="${{ github.ref_name }}"
+        BODY=$(awk "/^## \[?${VERSION//./\\.}\]?/{flag=1; next} /^## /{flag=0} flag" CHANGELOG.md)
+        if [ -z "$BODY" ]; then
+          BODY="See [CHANGELOG.md](CHANGELOG.md) for full details."
+        fi
+        # Write to file to safely pass multi-line string
+        echo "$BODY" > release_body.md
+
+    - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: build/release-pkg/cds-bedrock-src-*.tar.gz
-        generate_release_notes: true
+        name: CDS-Bedrock ${{ github.ref_name }}
+        body_path: release_body.md
+        draft: false
+        prerelease: ${{ contains(github.ref_name, '-') }}   # marks "v1.0.0-rc.1" as pre-release
+        generate_release_notes: false
+        files: |
+          dist/**/*.tar.gz
+          dist/**/*.zip
