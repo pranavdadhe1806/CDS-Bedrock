@@ -11,22 +11,25 @@ typedef struct {
     int     capacity;   // Current allocated capacity
 } BRQueue;
 
-// Lifecycle
-BRQueue* BRQueue_new(void);
-void     BRQueue_destroy(BRQueue *queue);
+/* Lifecycle */
+BRQueue* BRQueue_new(void);                              /* caller owns */
+void     BRQueue_destroy(BRQueue *queue);                /* frees queue + all contained Values */
 
-// Type-specific enqueue functions (called by _Generic macro)
+/* Type-specific enqueue — queue takes ownership of created Value */
 void _brqueue_enqueue_int(BRQueue *queue, int val);
 void _brqueue_enqueue_double(BRQueue *queue, double val);
 void _brqueue_enqueue_char(BRQueue *queue, char val);
 void _brqueue_enqueue_string(BRQueue *queue, const char *val);
 
-// Core operations
-Value* brqueue_dequeue(BRQueue *queue); // caller owns returned Value*
+/* Returns OWNED pointer; caller MUST call value_free() */
+Value* brqueue_dequeue(BRQueue *queue);
+
+/* Returns BORROWED pointer; caller must NOT free */
 Value* brqueue_peek(BRQueue *queue);
+
 int    brqueue_is_empty(BRQueue *queue);
 int    brqueue_size(BRQueue *queue);
-void   brqueue_clear(BRQueue *queue);
+void   brqueue_clear(BRQueue *queue);                    /* frees all contained Values */
 void   brqueue_print(BRQueue *queue);
 
 #endif // BEDROCK_QUEUE_H

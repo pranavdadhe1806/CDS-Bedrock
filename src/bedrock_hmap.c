@@ -79,8 +79,14 @@ static void _hmap_put_value(HMap *map, Value *key, Value *value) {
         return;
     }
 
-    /* Resize before inserting if load ≥ 0.7 */
-    if ((float)map->size / (float)map->capacity >= 0.7f) {
+    /* Resize before inserting if load (live + tombstones) ≥ 0.7.
+     * Tombstones degrade probe chains just like live entries, so we must
+     * count them to avoid O(n) lookups after many insert/delete cycles. */
+    int occupied = 0;
+    for (int j = 0; j < map->capacity; j++) {
+        if (map->entries[j].state != SLOT_EMPTY) occupied++;
+    }
+    if ((float)occupied / (float)map->capacity >= 0.7f) {
         _hmap_resize(map);
     }
 

@@ -31,13 +31,15 @@ static BRNode *_create_node(Value *val) {
     return node;
 }
 
-// Push Front implementations
-void _list_push_front_int(LinkedList *list, int val) {
-    if (list == NULL) return;
-    Value *v = make_int(val);
+/* ===================================================================
+ * Core push/insert/update helpers — single implementation per operation.
+ * Type-specific wrappers below just call make_*() then delegate here.
+ * =================================================================== */
+
+static void _list_push_front_value(LinkedList *list, Value *v) {
     BRNode *node = _create_node(v);
     if (node == NULL) return;
-    
+
     if (list->head == NULL) {
         list->head = node;
         list->tail = node;
@@ -47,129 +49,161 @@ void _list_push_front_int(LinkedList *list, int val) {
         list->head = node;
     }
     list->size++;
+}
+
+static void _list_push_back_value(LinkedList *list, Value *v) {
+    BRNode *node = _create_node(v);
+    if (node == NULL) return;
+
+    if (list->tail == NULL) {
+        list->head = node;
+        list->tail = node;
+    } else {
+        node->prev = list->tail;
+        list->tail->next = node;
+        list->tail = node;
+    }
+    list->size++;
+}
+
+static void _list_insert_at_value(LinkedList *list, int index, Value *v) {
+    /* Boundary cases delegate to push_front/push_back */
+    if (index == 0) {
+        _list_push_front_value(list, v);
+        return;
+    }
+    if (index == list->size) {
+        _list_push_back_value(list, v);
+        return;
+    }
+
+    BRNode *node = _create_node(v);
+    if (node == NULL) return;
+
+    BRNode *current = list->head;
+    for (int i = 0; i < index; i++) {
+        current = current->next;
+    }
+
+    node->prev = current->prev;
+    node->next = current;
+    current->prev->next = node;
+    current->prev = node;
+    list->size++;
+}
+
+static void _list_update_at_value(LinkedList *list, int index, Value *v) {
+    if (v == NULL) return;
+
+    BRNode *current = list->head;
+    for (int i = 0; i < index; i++) {
+        current = current->next;
+    }
+
+    value_free(current->data);
+    current->data = v;
+}
+
+/* ===================================================================
+ * Type-specific wrappers — push_front
+ * =================================================================== */
+
+void _list_push_front_int(LinkedList *list, int val) {
+    if (list == NULL) return;
+    _list_push_front_value(list, make_int(val));
 }
 
 void _list_push_front_double(LinkedList *list, double val) {
     if (list == NULL) return;
-    Value *v = make_double(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->head == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->next = list->head;
-        list->head->prev = node;
-        list->head = node;
-    }
-    list->size++;
+    _list_push_front_value(list, make_double(val));
 }
 
 void _list_push_front_char(LinkedList *list, char val) {
     if (list == NULL) return;
-    Value *v = make_char(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->head == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->next = list->head;
-        list->head->prev = node;
-        list->head = node;
-    }
-    list->size++;
+    _list_push_front_value(list, make_char(val));
 }
 
 void _list_push_front_string(LinkedList *list, const char *val) {
     if (list == NULL) return;
-    Value *v = make_string(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->head == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->next = list->head;
-        list->head->prev = node;
-        list->head = node;
-    }
-    list->size++;
+    _list_push_front_value(list, make_string(val));
 }
 
-// Push Back implementations
+/* ===================================================================
+ * Type-specific wrappers — push_back
+ * =================================================================== */
+
 void _list_push_back_int(LinkedList *list, int val) {
     if (list == NULL) return;
-    Value *v = make_int(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->tail == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->prev = list->tail;
-        list->tail->next = node;
-        list->tail = node;
-    }
-    list->size++;
+    _list_push_back_value(list, make_int(val));
 }
 
 void _list_push_back_double(LinkedList *list, double val) {
     if (list == NULL) return;
-    Value *v = make_double(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->tail == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->prev = list->tail;
-        list->tail->next = node;
-        list->tail = node;
-    }
-    list->size++;
+    _list_push_back_value(list, make_double(val));
 }
 
 void _list_push_back_char(LinkedList *list, char val) {
     if (list == NULL) return;
-    Value *v = make_char(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->tail == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->prev = list->tail;
-        list->tail->next = node;
-        list->tail = node;
-    }
-    list->size++;
+    _list_push_back_value(list, make_char(val));
 }
 
 void _list_push_back_string(LinkedList *list, const char *val) {
     if (list == NULL) return;
-    Value *v = make_string(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    if (list->tail == NULL) {
-        list->head = node;
-        list->tail = node;
-    } else {
-        node->prev = list->tail;
-        list->tail->next = node;
-        list->tail = node;
-    }
-    list->size++;
+    _list_push_back_value(list, make_string(val));
 }
 
-// Peek operations
+/* ===================================================================
+ * Type-specific wrappers — insert_at
+ * =================================================================== */
+
+void _list_insert_at_int(LinkedList *list, int index, int val) {
+    if (list == NULL || index < 0 || index > list->size) return;
+    _list_insert_at_value(list, index, make_int(val));
+}
+
+void _list_insert_at_double(LinkedList *list, int index, double val) {
+    if (list == NULL || index < 0 || index > list->size) return;
+    _list_insert_at_value(list, index, make_double(val));
+}
+
+void _list_insert_at_char(LinkedList *list, int index, char val) {
+    if (list == NULL || index < 0 || index > list->size) return;
+    _list_insert_at_value(list, index, make_char(val));
+}
+
+void _list_insert_at_string(LinkedList *list, int index, const char *val) {
+    if (list == NULL || index < 0 || index > list->size) return;
+    _list_insert_at_value(list, index, make_string(val));
+}
+
+/* ===================================================================
+ * Type-specific wrappers — update_at
+ * =================================================================== */
+
+void _list_update_at_int(LinkedList *list, int index, int val) {
+    if (list == NULL || index < 0 || index >= list->size) return;
+    _list_update_at_value(list, index, make_int(val));
+}
+
+void _list_update_at_double(LinkedList *list, int index, double val) {
+    if (list == NULL || index < 0 || index >= list->size) return;
+    _list_update_at_value(list, index, make_double(val));
+}
+
+void _list_update_at_char(LinkedList *list, int index, char val) {
+    if (list == NULL || index < 0 || index >= list->size) return;
+    _list_update_at_value(list, index, make_char(val));
+}
+
+void _list_update_at_string(LinkedList *list, int index, const char *val) {
+    if (list == NULL || index < 0 || index >= list->size) return;
+    _list_update_at_value(list, index, make_string(val));
+}
+
+/* ===================================================================
+ * Peek / Pop / Get / Remove — unchanged
+ * =================================================================== */
+
 Value *list_peek_front(LinkedList *list) {
     if (list == NULL || list->head == NULL) return NULL;
     return list->head->data;
@@ -180,7 +214,6 @@ Value *list_peek_back(LinkedList *list) {
     return list->tail->data;
 }
 
-// Pop Front
 Value *list_pop_front(LinkedList *list) {
     if (list == NULL || list->head == NULL) return NULL;
     
@@ -188,7 +221,6 @@ Value *list_pop_front(LinkedList *list) {
     Value *value = node->data;
     
     if (list->head == list->tail) {
-        // Only one node
         list->head = NULL;
         list->tail = NULL;
     } else {
@@ -201,7 +233,6 @@ Value *list_pop_front(LinkedList *list) {
     return value;
 }
 
-// Pop Back
 Value *list_pop_back(LinkedList *list) {
     if (list == NULL || list->tail == NULL) return NULL;
     
@@ -209,7 +240,6 @@ Value *list_pop_back(LinkedList *list) {
     Value *value = node->data;
     
     if (list->head == list->tail) {
-        // Only one node
         list->head = NULL;
         list->tail = NULL;
     } else {
@@ -222,7 +252,6 @@ Value *list_pop_back(LinkedList *list) {
     return value;
 }
 
-// Get At
 Value *list_get_at(LinkedList *list, int index) {
     if (list == NULL || index < 0 || index >= list->size) return NULL;
     
@@ -233,116 +262,6 @@ Value *list_get_at(LinkedList *list, int index) {
     return current->data;
 }
 
-// Insert At implementations
-void _list_insert_at_int(LinkedList *list, int index, int val) {
-    if (list == NULL || index < 0 || index > list->size) return;
-    if (index == 0) {
-        _list_push_front_int(list, val);
-        return;
-    }
-    if (index == list->size) {
-        _list_push_back_int(list, val);
-        return;
-    }
-    
-    Value *v = make_int(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    node->prev = current->prev;
-    node->next = current;
-    current->prev->next = node;
-    current->prev = node;
-    list->size++;
-}
-
-void _list_insert_at_double(LinkedList *list, int index, double val) {
-    if (list == NULL || index < 0 || index > list->size) return;
-    if (index == 0) {
-        _list_push_front_double(list, val);
-        return;
-    }
-    if (index == list->size) {
-        _list_push_back_double(list, val);
-        return;
-    }
-    
-    Value *v = make_double(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    node->prev = current->prev;
-    node->next = current;
-    current->prev->next = node;
-    current->prev = node;
-    list->size++;
-}
-
-void _list_insert_at_char(LinkedList *list, int index, char val) {
-    if (list == NULL || index < 0 || index > list->size) return;
-    if (index == 0) {
-        _list_push_front_char(list, val);
-        return;
-    }
-    if (index == list->size) {
-        _list_push_back_char(list, val);
-        return;
-    }
-    
-    Value *v = make_char(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    node->prev = current->prev;
-    node->next = current;
-    current->prev->next = node;
-    current->prev = node;
-    list->size++;
-}
-
-void _list_insert_at_string(LinkedList *list, int index, const char *val) {
-    if (list == NULL || index < 0 || index > list->size) return;
-    if (index == 0) {
-        _list_push_front_string(list, val);
-        return;
-    }
-    if (index == list->size) {
-        _list_push_back_string(list, val);
-        return;
-    }
-    
-    Value *v = make_string(val);
-    BRNode *node = _create_node(v);
-    if (node == NULL) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    node->prev = current->prev;
-    node->next = current;
-    current->prev->next = node;
-    current->prev = node;
-    list->size++;
-}
-
-// Remove At
 void list_remove_at(LinkedList *list, int index) {
     if (list == NULL || index < 0 || index >= list->size) return;
     
@@ -369,70 +288,15 @@ void list_remove_at(LinkedList *list, int index) {
     list->size--;
 }
 
-// Update At implementations
-void _list_update_at_int(LinkedList *list, int index, int val) {
-    if (list == NULL || index < 0 || index >= list->size) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    Value *v = make_int(val);
-    if (v == NULL) return;
-    value_free(current->data);
-    current->data = v;
-}
+/* ===================================================================
+ * Utility — size, contains, reverse, clear, print
+ * =================================================================== */
 
-void _list_update_at_double(LinkedList *list, int index, double val) {
-    if (list == NULL || index < 0 || index >= list->size) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    Value *v = make_double(val);
-    if (v == NULL) return;
-    value_free(current->data);
-    current->data = v;
-}
-
-void _list_update_at_char(LinkedList *list, int index, char val) {
-    if (list == NULL || index < 0 || index >= list->size) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    Value *v = make_char(val);
-    if (v == NULL) return;
-    value_free(current->data);
-    current->data = v;
-}
-
-void _list_update_at_string(LinkedList *list, int index, const char *val) {
-    if (list == NULL || index < 0 || index >= list->size) return;
-    
-    BRNode *current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    
-    Value *v = make_string(val);
-    if (v == NULL) return;
-    value_free(current->data);
-    current->data = v;
-}
-
-// Size
 int list_size(LinkedList *list) {
     if (list == NULL) return 0;
     return list->size;
 }
 
-// Contains implementations
 int _list_contains_int(LinkedList *list, int val) {
     if (list == NULL) return 0;
     Value tmp = {TYPE_INT, {.i = val}};
@@ -477,28 +341,24 @@ int _list_contains_string(LinkedList *list, const char *val) {
     return 0;
 }
 
-// Reverse
 void list_reverse(LinkedList *list) {
     if (list == NULL || list->size <= 1) return;
     
     BRNode *current = list->head;
     BRNode *temp = NULL;
     
-    // Swap prev and next for all nodes
     while (current != NULL) {
         temp = current->prev;
         current->prev = current->next;
         current->next = temp;
-        current = current->prev;  // Move to next (which was prev)
+        current = current->prev;
     }
     
-    // Swap head and tail
     temp = list->head;
     list->head = list->tail;
     list->tail = temp;
 }
 
-// Clear
 void list_clear(LinkedList *list) {
     if (list == NULL) return;
     
@@ -515,7 +375,6 @@ void list_clear(LinkedList *list) {
     list->size = 0;
 }
 
-// Print
 void list_print(LinkedList *list) {
     if (list == NULL || list->head == NULL) {
         printf("NULL\n");

@@ -9,22 +9,25 @@ typedef struct {
     int     capacity;   // Current allocated capacity
 } BRStack;
 
-// Lifecycle
-BRStack* BRStack_new(void);
-void     BRStack_destroy(BRStack *stack);
+/* Lifecycle */
+BRStack* BRStack_new(void);                             /* caller owns */
+void     BRStack_destroy(BRStack *stack);               /* frees stack + all contained Values */
 
-// Type-specific push functions (called by _Generic macro)
+/* Type-specific push — stack takes ownership of created Value */
 void _brstack_push_int(BRStack *stack, int val);
 void _brstack_push_double(BRStack *stack, double val);
 void _brstack_push_char(BRStack *stack, char val);
 void _brstack_push_string(BRStack *stack, const char *val);
 
-// Core operations
-Value* brstack_pop(BRStack *stack); // caller owns returned Value*
+/* Returns OWNED pointer; caller MUST call value_free() */
+Value* brstack_pop(BRStack *stack);
+
+/* Returns BORROWED pointer; caller must NOT free */
 Value* brstack_peek(BRStack *stack);
+
 int    brstack_is_empty(BRStack *stack);
 int    brstack_size(BRStack *stack);
-void   brstack_clear(BRStack *stack);
+void   brstack_clear(BRStack *stack);                   /* frees all contained Values */
 void   brstack_print(BRStack *stack);
 
 #endif // BEDROCK_STACK_H

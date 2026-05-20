@@ -137,12 +137,52 @@ static void _postorder(BRBSTNode *node) {
     printf(" ");
 }
 
-static void _destroy_recursive(BRBSTNode *node) {
-    if (node == NULL) return;
-    _destroy_recursive(node->left);
-    _destroy_recursive(node->right);
-    value_free(node->data);
-    free(node);
+static void _destroy_iterative(BRBSTNode *root) {
+    if (root == NULL) return;
+
+    /* Explicit stack to avoid recursion (prevents stack overflow on O(n)-depth trees) */
+    int cap = 32;
+    int top = 0;
+    BRBSTNode **stack = malloc((size_t)cap * sizeof(BRBSTNode *));
+    if (stack == NULL) {
+        /* Fallback: if we can't even allocate a small stack, do a simple
+         * iterative post-order using Morris-like traversal isn't easy,
+         * so just recurse as before (better than leaking everything). */
+        if (root->left)  _destroy_iterative(root->left);
+        if (root->right) _destroy_iterative(root->right);
+        value_free(root->data);
+        free(root);
+        return;
+    }
+
+    stack[top++] = root;
+
+    while (top > 0) {
+        BRBSTNode *node = stack[--top];
+
+        /* Push children before freeing (pre-order push, post-order free via stack) */
+        if (node->left != NULL) {
+            if (top >= cap) {
+                int new_cap = cap * 2;
+                BRBSTNode **tmp = realloc(stack, (size_t)new_cap * sizeof(BRBSTNode *));
+                if (tmp != NULL) { stack = tmp; cap = new_cap; }
+            }
+            if (top < cap) stack[top++] = node->left;
+        }
+        if (node->right != NULL) {
+            if (top >= cap) {
+                int new_cap = cap * 2;
+                BRBSTNode **tmp = realloc(stack, (size_t)new_cap * sizeof(BRBSTNode *));
+                if (tmp != NULL) { stack = tmp; cap = new_cap; }
+            }
+            if (top < cap) stack[top++] = node->right;
+        }
+
+        value_free(node->data);
+        free(node);
+    }
+
+    free(stack);
 }
 
 BRBST *BRBST_new(void) {
@@ -155,7 +195,7 @@ BRBST *BRBST_new(void) {
 
 void BRBST_destroy(BRBST *tree) {
     if (tree == NULL) return;
-    _destroy_recursive(tree->root);
+    _destroy_iterative(tree->root);
     free(tree);
 }
 
@@ -257,7 +297,7 @@ int brbst_is_empty(BRBST *tree) {
 
 void brbst_clear(BRBST *tree) {
     if (tree == NULL) return;
-    _destroy_recursive(tree->root);
+    _destroy_iterative(tree->root);
     tree->root = NULL;
     tree->size = 0;
 }

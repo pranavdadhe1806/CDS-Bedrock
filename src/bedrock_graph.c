@@ -51,18 +51,7 @@ static int _remove_directed_edge(Graph *graph, int src, int dest, int free_weigh
     return 0;
 }
 
-static void _dfs_visit(Graph *graph, int vertex, int *visited, void (*visit)(int vertex)) {
-    visited[vertex] = 1;
-    if (visit != NULL) visit(vertex);
-
-    AdjNode *current = graph->adj_lists[vertex];
-    while (current != NULL) {
-        if (!visited[current->vertex]) {
-            _dfs_visit(graph, current->vertex, visited, visit);
-        }
-        current = current->next;
-    }
-}
+/* _dfs_visit removed — graph_dfs is now iterative (see below) */
 
 Graph *graph_create(int num_vertices, int directed,
                     void (*print_fn)(const void *weight),
@@ -231,6 +220,39 @@ void graph_dfs(Graph *graph, int start_vertex, void (*visit)(int vertex)) {
     int *visited = calloc((size_t)graph->num_vertices, sizeof(int));
     if (visited == NULL) return;
 
-    _dfs_visit(graph, start_vertex, visited, visit);
+    /* Explicit stack to avoid recursion (prevents stack overflow on large graphs) */
+    int cap = 32;
+    int top = 0;
+    int *stack = malloc((size_t)cap * sizeof(int));
+    if (stack == NULL) {
+        free(visited);
+        return;
+    }
+
+    stack[top++] = start_vertex;
+
+    while (top > 0) {
+        int vertex = stack[--top];
+
+        if (visited[vertex]) continue;
+        visited[vertex] = 1;
+        if (visit != NULL) visit(vertex);
+
+        /* Push unvisited neighbors (reverse order so first neighbor is visited first) */
+        AdjNode *current = graph->adj_lists[vertex];
+        while (current != NULL) {
+            if (!visited[current->vertex]) {
+                if (top >= cap) {
+                    int new_cap = cap * 2;
+                    int *tmp = realloc(stack, (size_t)new_cap * sizeof(int));
+                    if (tmp != NULL) { stack = tmp; cap = new_cap; }
+                }
+                if (top < cap) stack[top++] = current->vertex;
+            }
+            current = current->next;
+        }
+    }
+
+    free(stack);
     free(visited);
 }

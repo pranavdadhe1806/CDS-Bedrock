@@ -14,22 +14,29 @@ typedef struct {
     int        size;
 } BRBST;
 
-BRBST    *BRBST_new(void);
-void      BRBST_destroy(BRBST *tree);
+/* Lifecycle */
+BRBST    *BRBST_new(void);                              /* caller owns */
+void      BRBST_destroy(BRBST *tree);                   /* frees tree + all contained Values */
+
+/* Type-specific insert — tree takes ownership of created Value */
 void      _brbst_insert_int(BRBST *tree, int val);
 void      _brbst_insert_double(BRBST *tree, double val);
 void      _brbst_insert_char(BRBST *tree, char val);
 void      _brbst_insert_string(BRBST *tree, const char *val);
-int       brbst_search(BRBST *tree, Value *val);
-void      brbst_remove(BRBST *tree, Value *val);
+
+int       brbst_search(BRBST *tree, Value *val);        /* borrows val for comparison */
+void      brbst_remove(BRBST *tree, Value *val);        /* borrows val; frees matched node’s Value internally */
+
+/* Returns BORROWED pointer; caller must NOT free */
 Value     *brbst_find_min(BRBST *tree);
 Value     *brbst_find_max(BRBST *tree);
+
 int       brbst_height(BRBST *tree);
 void      brbst_inorder(BRBST *tree);
 void      brbst_preorder(BRBST *tree);
 void      brbst_postorder(BRBST *tree);
 int       brbst_size(BRBST *tree);
 int       brbst_is_empty(BRBST *tree);
-void      brbst_clear(BRBST *tree);
+void      brbst_clear(BRBST *tree);                     /* frees all contained Values */
 
 #endif // BEDROCK_BST_H
